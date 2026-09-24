@@ -38,15 +38,15 @@ to a record, never by being put in a folder.
 composer require uhifadhi/storage-module
 ```
 
-The core is not on Packagist yet, so the installation names where it comes from
-— a `repositories` entry in a dependency's own `composer.json` is ignored, and
-this line belongs in the application's:
+Then the installation's three commands, the same three after every change to it:
 
-```json
-"repositories": [
-    { "type": "vcs", "url": "https://github.com/utafitilabs/uhifadhi" }
-]
+```console
+php bin/console cache:clear --no-warmup
+php bin/console doctrine:migrations:migrate
+php bin/console cache:warmup
 ```
+
+This module ships the migrations for the tables it owns and registers their path itself, so `migrate` runs them and an installation writes no version for them; `doctrine:migrations:diff` stays reserved for the installation's own entities and must report no changes after this. In development AssetMapper serves the module's stylesheets and scripts from source; the production image compiles them.
 
 The recipe registers the bundles and writes `config/packages/storage.yaml` and
 `config/routes/storage.yaml`. Without Flex, `config/bundles.php` needs three
@@ -83,6 +83,10 @@ with the server's limit in the sentence rather than with "did not arrive intact"
 installing run your own `doctrine:migrations:diff` and `migrate`. It answers
 `Uhifadhi\Contracts\Entity\UserInterface` from `TeamBundle`, in the same
 package, so an installation writes no `resolve_target_entities` line.
+
+### Switching it on
+
+A module is installed but **parked**: every page of it answers 404 in an area that has not taken it. An administrator switches it on per area from that area's module grid, and grants the module's permissions to the positions that need them from the positions screen. Reading needs the module's `read` grant; nothing else is required to see it.
 
 ## Getting started
 
