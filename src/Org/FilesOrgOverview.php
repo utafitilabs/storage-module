@@ -24,10 +24,10 @@ use Uhifadhi\Storage\Service\StoragePlaces;
 use Uhifadhi\Storage\Service\StorageTargetService;
 
 /**
- * THE ORGANISATION'S FILES, READ AT THE SCOPE THE HOST HANDED IN.
+ * THE ORGANIZATION'S FILES, READ AT THE SCOPE THE HOST HANDED IN.
  *
  * THE SCOPE IS ANSWERED, NOT IGNORED. The contract's whole rule for this
- * seam is that a figure across the organisation IS the per-area figures one
+ * seam is that a figure across the organization IS the per-area figures one
  * scope wider — so an area scope narrows the same registry rather than
  * reaching for a different total. Every file carries the area it belongs
  * to, so narrowing is a filter and not a second query.
@@ -55,7 +55,7 @@ final class FilesOrgOverview
 
     public function read(Scope $scope, \DateTimeImmutable $now, int $rows): FilesOrgReading
     {
-        $key = ($scope->areaUuid ?? 'organisation').'@'.$now->format('c').'#'.$rows;
+        $key = ($scope->areaUuid ?? 'organization').'@'.$now->format('c').'#'.$rows;
         if ($key === $this->readingKey && null !== $this->reading) {
             return $this->reading;
         }
@@ -93,7 +93,7 @@ final class FilesOrgOverview
     }
 
     /**
-     * THE SCOPE, ANSWERED BY NARROWING. An organisation scope is every file;
+     * THE SCOPE, ANSWERED BY NARROWING. An organization scope is every file;
      * an area scope is the files whose own area says so.
      *
      * @return list<FileEntry>
@@ -101,7 +101,7 @@ final class FilesOrgOverview
     private function inScope(Scope $scope): array
     {
         $all = $this->registry->all();
-        if ($scope->isOrganisation()) {
+        if ($scope->isOrganization()) {
             return $all;
         }
 

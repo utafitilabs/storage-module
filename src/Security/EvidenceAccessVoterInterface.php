@@ -54,7 +54,7 @@ interface EvidenceAccessVoterInterface
      *
      * $user is null for a visitor who is not signed in. Deciding that case is
      * the module's job too — some evidence may be visible to a whole
-     * organisation and some to two people — so it is passed along rather than
+     * organization and some to two people — so it is passed along rather than
      * quietly answered here.
      *
      * Called only when claimsKey() returned true.

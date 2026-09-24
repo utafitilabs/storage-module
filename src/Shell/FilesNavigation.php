@@ -43,7 +43,7 @@ use Uhifadhi\Storage\Controller\FilesSectionController;
  * permission-checked on its way out, and so the hub shows LESS to some people
  * rather than being closed to them. A row gated on an administrator permission
  * would hide a screen that is deliberately open. It is absent for a stranger,
- * because who owns what is the organisation's business.
+ * because who owns what is the organization's business.
  *
  * ROUTE-TOLERANT. The address is mounted by the APPLICATION (the recipe's
  * config/routes/storage.yaml, which an installation may edit or delete), and a
@@ -62,13 +62,13 @@ final readonly class FilesNavigation implements NavigationSourceInterface
      * ORGANIZATION — RULED. This sat under System while the question was open,
      * on the reading that the hub administers at least as much as it observes.
      * The ruling settled what the groups MEAN rather than where this one row
-     * felt at home: Organization is what the organisation is and holds, and
+     * felt at home: Organization is what the organization is and holds, and
      * files are held. System is what the installation RAISES to you — alerts,
      * telemetry, rows that exist because something needs telling — and nobody
      * is told anything by a register of photographs.
      *
      * JOINED BY CONSTANT, NEVER BY THE LITERAL. A near-miss string
-     * ("Organisation", with the s) makes a fifth heading rather than an
+     * ("Organization", with the s) makes a fifth heading rather than an
      * error, and a sidebar with two of anything answers "where am I" with a
      * lie.
      */

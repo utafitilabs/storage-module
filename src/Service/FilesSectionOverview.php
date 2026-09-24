@@ -24,7 +24,7 @@ use Uhifadhi\Storage\Model\SectionLine;
 use Uhifadhi\Storage\Registry\FileRegistry;
 
 /**
- * THE FILES SECTION'S FIRST TAB — what this organisation holds, where it came
+ * THE FILES SECTION'S FIRST TAB — what this organization holds, where it came
  * from and what it costs.
  *
  * IT WRITES NOTHING. Every figure on it is already on a file row; the

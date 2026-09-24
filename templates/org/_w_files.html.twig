@@ -1,4 +1,4 @@
-{# "Latest files kept" — this module's cell on the HOST's organisation
+{# "Latest files kept" — this module's cell on the HOST's organization
    dashboard (`/`). Design: org.widgets.js, the `files` cell, composed by
    preset E.
 
@@ -42,7 +42,7 @@
                     <td><b>{{ row.name }}</b></td>
                     <td>{{ row.moduleLabel|lower }}</td>
                     {# A FILE OUTSIDE EVERY AREA IS A FACT, not a blank: the
-                       organisation keeps files that belong to no area. #}
+                       organization keeps files that belong to no area. #}
                     <td>{{ row.areaLabel ?? '—' }}</td>
                     <td><time datetime="{{ row.keptAt|date('c') }}" data-localtime-format="daystamp">{{ row.keptAt|date('j M H:i')|lower }}</time></td>
                     <td class="num">{{ row.byteSize|storage_bytes }}</td>

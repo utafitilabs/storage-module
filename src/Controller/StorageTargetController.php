@@ -150,7 +150,7 @@ final readonly class StorageTargetController
             $this->targets->clearRetired();
 
             // IT DELETES NO BYTES, and saying so is the point: emptying a
-            // bucket the organisation pays for is theirs to do, once nothing
+            // bucket the organization pays for is theirs to do, once nothing
             // here points at it.
             return 'The old place is no longer part of this installation. Nothing was deleted from it — it held nothing.';
         });

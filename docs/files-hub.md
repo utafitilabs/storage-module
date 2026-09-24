@@ -1,7 +1,7 @@
 # The Files hub
 
 A **cross-module screen at `/files`**: every photograph, document and track the
-organisation holds, across every module and every area, in one place — each one
+organization holds, across every module and every area, in one place — each one
 shown with the record it belongs to.
 
 **A file is OWNER-BOUND.** It belongs to a record in a module: an observation's

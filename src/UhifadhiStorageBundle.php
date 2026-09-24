@@ -256,7 +256,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
          * Defaulted rather than required, and defaulted to a DESCRIPTION rather
          * than to a vendor: "Object storage" and "This server" are true of every
          * deployment. The one place a proper noun belongs is a name the
-         * organisation actually chose, which is what storage_label is for.
+         * organization actually chose, which is what storage_label is for.
          */
         $files = self::stringKeyed($config['files'] ?? null);
         $label = $files['storage_label'] ?? null;
@@ -271,7 +271,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
 
         /*
          * WHAT WAS BOUGHT, AND WHEN TO WARN. Neither is a model field and
-         * neither can be: no file knows what the organisation pays for. A
+         * neither can be: no file knows what the organization pays for. A
          * deployment that types no quota gets a Storage tab that draws no bar
          * rather than an empty one — an unmeasured share and a full one are
          * different facts.
@@ -579,7 +579,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
              * no page to switch from.
              */
             /*
-             * WHAT THIS MODULE PUTS ON THE ORGANISATION DASHBOARD — one
+             * WHAT THIS MODULE PUTS ON THE ORGANIZATION DASHBOARD — one
              * figure on the strip and one cell in preset E.
              *
              * Tagged by hand at this end, as every seam is: a reusable

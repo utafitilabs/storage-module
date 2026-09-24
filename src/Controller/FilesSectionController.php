@@ -112,12 +112,12 @@ final readonly class FilesSectionController
 
     /**
      * The section is open to anyone signed in, and not to a stranger: who owns
-     * what is the organisation's business.
+     * what is the organization's business.
      */
     private function denyAnonymous(): void
     {
         if (null === $this->tokens->getToken()?->getUser()) {
-            throw new AccessDeniedHttpException('Sign in to see the files this organisation holds.');
+            throw new AccessDeniedHttpException('Sign in to see the files this organization holds.');
         }
     }
 }

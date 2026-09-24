@@ -44,7 +44,7 @@ use Uhifadhi\Storage\Service\StorageTargetService;
  *
  * A FILE THAT CANNOT BE CARRIED DOES NOT STOP THE MOVE. It is logged and left
  * where it is, so one unreadable object cannot strand four thousand others in
- * a place the organisation is trying to empty — and because it is left, the
+ * a place the organization is trying to empty — and because it is left, the
  * old place does not reach zero and cannot be cleared, which is exactly the
  * right outcome.
  */

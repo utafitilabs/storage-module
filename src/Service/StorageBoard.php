@@ -27,7 +27,7 @@ use Uhifadhi\Storage\Registry\FileRegistry;
  * answered.
  *
  * QUOTA IS NOT IN THE MODEL. What a storage holds is a fact about the
- * account the organisation bought, not about any file, so it is typed on the
+ * account the organization bought, not about any file, so it is typed on the
  * target in configuration — and a target with no quota typed DRAWS NO BAR
  * rather than a full one, because an unmeasured share and a full one are
  * different facts.
@@ -47,7 +47,7 @@ final readonly class StorageBoard
     }
 
     /**
-     * One row per named storage the organisation configured.
+     * One row per named storage the organization configured.
      *
      * @return list<array{place: StoragePlace, files: int, bytes: int, quotaBytes: int|null, filled: float|null}>
      */

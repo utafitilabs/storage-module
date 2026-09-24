@@ -43,7 +43,7 @@ final class SidebarRowTest extends FilesTestCase
      *
      * It sat under System while the question was open. The ruling settled
      * what the groups MEAN rather than where this one row felt at home:
-     * Organization is what the organisation is and holds, and files are
+     * Organization is what the organization is and holds, and files are
      * held; System is what the installation RAISES to you, and nobody is
      * told anything by a register of photographs.
      *
@@ -100,7 +100,7 @@ final class SidebarRowTest extends FilesTestCase
 
     /**
      * ABSENT, NEVER HIDDEN. A row a stranger can read in the HTML tells them the
-     * organisation has files, which is the organisation's business.
+     * organization has files, which is the organization's business.
      */
     public function testAStrangerIsOfferedNothing(): void
     {

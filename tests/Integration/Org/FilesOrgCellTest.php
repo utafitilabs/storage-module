@@ -26,12 +26,12 @@ use Uhifadhi\Storage\Org\FilesOrgWidgets;
  * `with_context: false` AND ONE MAP, which is the whole contract and the
  * whole risk: a partial that reached for a global, or read a key that had
  * drifted from the contributor, would draw an EMPTY CELL on the
- * organisation dashboard rather than fail anywhere. Nothing in a unit test
+ * organization dashboard rather than fail anywhere. Nothing in a unit test
  * can catch that, so the template is rendered here against the real Twig
  * this bundle ships with, given exactly the map the host composes and
  * nothing else.
  *
- * WHY NOT THROUGH `/` ITSELF. The organisation dashboard is the area
+ * WHY NOT THROUGH `/` ITSELF. The organization dashboard is the area
  * bundle's, and rendering it needs AreaBundle and PostGIS in this kernel —
  * which this module deliberately does without (it owns no geometry and
  * resolves the area contract to a fixture). What is proved here is
@@ -112,10 +112,10 @@ final class FilesOrgCellTest extends KernelTestCase
         self::assertInstanceOf(FilesOrgOverview::class, $overview);
 
         $now = new \DateTimeImmutable('2026-08-21 12:00:00');
-        $organisation = $overview->read(Scope::organisation(), $now, FilesOrgWidgets::ROWS);
+        $organization = $overview->read(Scope::organization(), $now, FilesOrgWidgets::ROWS);
         $elsewhere = $overview->read(Scope::area('no-such-area', 'Elsewhere'), $now, FilesOrgWidgets::ROWS);
 
-        self::assertGreaterThan(0, $organisation->files, 'the stand-in module keeps files');
+        self::assertGreaterThan(0, $organization->files, 'the stand-in module keeps files');
         self::assertSame(0, $elsewhere->files, 'an area holding none reads none, and is still measured');
         self::assertTrue($elsewhere->measured(), 'a module declares a file store, so nothing here is unmeasured');
     }

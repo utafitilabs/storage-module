@@ -34,7 +34,7 @@ final class FilesHubPageTest extends FilesTestCase
         self::assertCount(5, $crawler->filter('[data-f-shapewrap] .f-tile'), 'every file the fixture module publishes is on the hub');
     }
 
-    public function testAStrangerIsNotShownWhatThisOrganisationHolds(): void
+    public function testAStrangerIsNotShownWhatThisOrganizationHolds(): void
     {
         static::createClient()->request('GET', '/files');
 

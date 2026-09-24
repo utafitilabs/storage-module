@@ -21,7 +21,7 @@ use Uhifadhi\Storage\Model\StoragePlace;
  * nothing else.
  *
  * WHAT IS HERE AND WHAT IS NOT. A place's credentials, its bucket, its
- * directory and the name the organisation gave it are configuration: they are
+ * directory and the name the organization gave it are configuration: they are
  * secrets and deployment facts, and a database is the wrong home for both.
  * Which of them is being WRITTEN to is not configuration — it is a decision
  * somebody made at a moment, and {@see StorageTargetService} owns it. This
@@ -127,7 +127,7 @@ final readonly class StoragePlaces
             $id,
             // Defaulted to a DESCRIPTION rather than to a vendor: "Object
             // storage" and "This server" are true of every deployment. The one
-            // place a proper noun belongs is a name the organisation chose.
+            // place a proper noun belongs is a name the organization chose.
             \is_string($label) && '' !== $label ? $label : ($s3 ? 'Object storage' : 'This server'),
             $s3 ? 's3' : 'local',
             $s3 ? 'Object storage' : 'The application’s own disk',

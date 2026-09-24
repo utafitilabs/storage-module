@@ -18,7 +18,7 @@
             <span style="display:flex;align-items:center;gap:8px">{{ ui.thumb(file) }}<span class="f-note">{% if file.thumbState.value == 'failed' %}the original is a {{ file.mimeType }}{% else %}arrived <time datetime="{{ file.arrivedAt|date('c') }}" data-localtime-format="daylong">{{ file.arrivedAt|date('D j M Y')|lower }}</time>{% endif %}</span></span>
         </div>
     {% else %}
-        <div class="use" style="margin-bottom:0">Every photograph this organisation holds has its small picture. Nothing is waiting.</div>
+        <div class="use" style="margin-bottom:0">Every photograph this organization holds has its small picture. Nothing is waiting.</div>
     {% endfor %}
     {# The thumbnail is a convenience made in the background; a photograph the
        thumbnailer cannot read is still there, still downloadable, still evidence.

@@ -41,7 +41,7 @@ use Uhifadhi\Storage\Shell\FilesSectionTabs;
 use Uhifadhi\Storage\Widget\FilesWidgets;
 
 /**
- * The Files hub: every photograph, document and track this organisation holds,
+ * The Files hub: every photograph, document and track this organization holds,
  * across every module and every area, in one place.
  *
  * WHAT THIS CONTROLLER MAY NOT DO, and the design says so on the page itself:
@@ -329,12 +329,12 @@ final class FilesController
      * The hub is open to anyone signed in: every file is shown with its owner and
      * every ORIGINAL is permission-checked on its way out, so the hub can show
      * less to some people rather than being closed to them. It is not open to a
-     * stranger, because the owners themselves are the organisation's business.
+     * stranger, because the owners themselves are the organization's business.
      */
     private function denyAnonymous(): void
     {
         if (null === $this->user()) {
-            throw new AccessDeniedHttpException('Sign in to see the files this organisation holds.');
+            throw new AccessDeniedHttpException('Sign in to see the files this organization holds.');
         }
     }
 

@@ -21,7 +21,7 @@ use Uhifadhi\Storage\Registry\FileRegistry;
 use Uhifadhi\Storage\Service\StoragePlaces;
 
 /**
- * WHAT THIS MODULE PUTS ON THE ORGANISATION DASHBOARD.
+ * WHAT THIS MODULE PUTS ON THE ORGANIZATION DASHBOARD.
  *
  * TWO THINGS, AND THE DESIGN NAMES BOTH: one figure on the four-to-a-row
  * strip ("Files kept"), and one cell in preset E ("Latest files kept"). This

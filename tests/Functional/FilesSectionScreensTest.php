@@ -260,7 +260,7 @@ final class FilesSectionScreensTest extends FilesTestCase
 
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('an application’s documents', $crawler->filter('table.tbl')->first()->text());
-        self::assertCount(0, $crawler->filter('input[type=text]'), 'the word is the module’s, not the organisation’s');
+        self::assertCount(0, $crawler->filter('input[type=text]'), 'the word is the module’s, not the organization’s');
     }
 
     /** NOTHING ANYWHERE IN THE SECTION UPLOADS. A file arrives on its record's own page. */

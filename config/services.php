@@ -243,7 +243,7 @@ return static function (ContainerConfigurator $container): void {
 
     /*
      * WHERE THE BYTES ARE AND HOW MUCH IS LEFT. The quota is a parameter and
-     * not a model field, because no file knows what the organisation bought.
+     * not a model field, because no file knows what the organization bought.
      */
     $services->set('storage.storage_board', StorageBoard::class)
         ->args([

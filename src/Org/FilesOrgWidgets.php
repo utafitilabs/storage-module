@@ -24,7 +24,7 @@ use Uhifadhi\Storage\Model\FilesOrgReading;
 use Uhifadhi\Storage\UhifadhiStorageBundle;
 
 /**
- * WHAT THIS MODULE PUTS ON THE ORGANISATION DASHBOARD.
+ * WHAT THIS MODULE PUTS ON THE ORGANIZATION DASHBOARD.
  *
  * TWO THINGS, AND THE DESIGN NAMES BOTH: the fourth figure on the
  * four-to-a-row strip ("Files kept"), and one cell composed by preset E
@@ -34,7 +34,7 @@ use Uhifadhi\Storage\UhifadhiStorageBundle;
  *
  * WHY A SECOND CONTRIBUTOR AND NOT THE AREA ONE. `/` is the area overview
  * one scope wider, and the contract keeps the two apart on purpose: a module
- * opts into the organisation surface deliberately, and one with nothing to
+ * opts into the organization surface deliberately, and one with nothing to
  * say across areas says nothing and loses no cells on the area page. The
  * Files hub is org-wide by construction, so this module has something to
  * say here whether or not it ever has something to say in an area.
@@ -42,7 +42,7 @@ use Uhifadhi\Storage\UhifadhiStorageBundle;
  * EVERY FIGURE IS THE PER-AREA READING ONE SCOPE WIDER. The {@see Scope} is
  * handed to {@see FilesOrgOverview}, which narrows the one registry rather
  * than computing a second total — the rule the core holds itself to and the
- * reason the organisation's answer can be trusted to be the areas' answers.
+ * reason the organization's answer can be trusted to be the areas' answers.
  */
 final class FilesOrgWidgets implements ContributesStylesheetInterface, OrgOverviewContributorInterface
 {
@@ -85,7 +85,7 @@ final class FilesOrgWidgets implements ContributesStylesheetInterface, OrgOvervi
         return new WidgetGroup(
             self::CELL,
             'Files · uhifadhi/storage-module',
-            'What the organisation is keeping, where it is kept, and how much of it there is.',
+            'What the organization is keeping, where it is kept, and how much of it there is.',
         );
     }
 
@@ -130,7 +130,7 @@ final class FilesOrgWidgets implements ContributesStylesheetInterface, OrgOvervi
     }
 
     /**
-     * THE FOURTH FIGURE ON THE STRIP — what the organisation is keeping.
+     * THE FOURTH FIGURE ON THE STRIP — what the organization is keeping.
      *
      * A static of the reading, so what the tile SAYS is provable without a
      * container, a database or a double.
@@ -151,7 +151,7 @@ final class FilesOrgWidgets implements ContributesStylesheetInterface, OrgOvervi
                 : 'nothing measured · no module keeps a file yet',
             url: $reading->registerUrl,
             // Fourth on the strip, where the design puts it: after the
-            // organisation's own areas, the roster's people and the
+            // organization's own areas, the roster's people and the
             // incidents module's open work.
             priority: 40,
         );

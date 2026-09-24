@@ -291,8 +291,8 @@ final readonly class StorageTargetService
      * because a page is a statement about a moment and the moment can pass.
      *
      * IT DELETES NO BYTES. What it drops is this installation's claim on the
-     * place: the row that made it readable. Emptying a bucket an organisation
-     * pays for is the organisation's to do, with its own tools, once nothing
+     * place: the row that made it readable. Emptying a bucket an organization
+     * pays for is the organization's to do, with its own tools, once nothing
      * here points at it.
      */
     public function clearRetired(): void

@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Uhifadhi\Storage\Model;
 
 /**
- * A named place the organisation keeps its files.
+ * A named place the organization keeps its files.
  *
  * Plain language, deliberately: "where the files go", never "the configured
  * Flysystem adapter". The one place a proper noun is allowed is the name of a
- * storage the organisation actually bought, and that name comes from the installation's
+ * storage the organization actually bought, and that name comes from the installation's
  * own configuration — this bundle never invents a vendor.
  *
  * Everything here is READ-ONLY TRUTH from config/packages/storage.yaml. The

@@ -22,7 +22,7 @@ use Uhifadhi\Storage\Model\FileFilter;
 use Uhifadhi\Storage\Model\FileGuard;
 
 /**
- * Every file this organisation holds, across every module and every area.
+ * Every file this organization holds, across every module and every area.
  *
  * The registry knows nothing about observations or incidents; it knows about
  * SOURCES, and a source is a module saying "these are mine, and here is who each

@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Uhifadhi\Storage\Model;
 
 /**
- * WHAT THE ORGANISATION IS KEEPING, READ ONCE.
+ * WHAT THE ORGANIZATION IS KEEPING, READ ONCE.
  *
- * The organisation dashboard renders a contributor's cells with
+ * The organization dashboard renders a contributor's cells with
  * `with_context: false` and hands each one the module's own figures; this is
  * that reading, computed once for the scope and shared by the strip's tile
  * and the cell, so the figure at the top of the page and the table under it
@@ -24,7 +24,7 @@ namespace Uhifadhi\Storage\Model;
  *
  * IT IS NOT A SECOND AGGREGATE. Every number here is the module's per-area
  * reading one scope wider — the same registry, asked at the scope the host
- * handed in. A module that grew a separate organisation total would have two
+ * handed in. A module that grew a separate organization total would have two
  * answers to one question and no way to say which was right.
  *
  * NOTHING MEASURED IS NOT NOUGHT, which is why {@see measured()} exists

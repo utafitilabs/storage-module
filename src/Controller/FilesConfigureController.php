@@ -44,7 +44,7 @@ use Uhifadhi\Storage\Shell\FilesSectionTabs;
  * THE WORD A MODULE USES FOR ITS FILES IS THE MODULE'S. The core's file-source
  * contract states it: "the phrase is the module's, printed verbatim, exactly
  * as a configure section's label is". So `Source modules` prints each
- * declaration and offers no box to retype it; an organisation that wants
+ * declaration and offers no box to retype it; an organization that wants
  * different words asks the module for them, in one place, rather than keeping
  * a second vocabulary the module never sees.
  *
