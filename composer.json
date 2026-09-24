@@ -47,7 +47,7 @@
         "symfony/security-csrf": "^7.3 || ^8.0",
         "symfony/uid": "^7.3 || ^8.0",
         "twig/twig": "^3.12",
-        "uhifadhi/uhifadhi": "^1.0@dev"
+        "uhifadhi/uhifadhi": "^0.1"
     },
     "autoload": {
         "psr-4": {
@@ -92,11 +92,6 @@
     },
     "config": {
         "sort-packages": true
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-main": "0.2-dev"
-        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true
