@@ -491,7 +491,7 @@ final class FileRegistry
 
     /**
      * The newest files BY ARRIVAL, which is the only ordering that answers
-     * "did the Ndutu patrol sync yet".
+     * "did the Eastgate patrol sync yet".
      *
      * @param list<FileEntry>|null $files
      *
