@@ -38,15 +38,16 @@ to a record, never by being put in a folder.
 composer require uhifadhi/storage-module
 ```
 
-Then the installation's three commands, the same three after every change to it:
+Then the installation's four commands, the same four after every change to it:
 
 ```console
 php bin/console cache:clear --no-warmup
 php bin/console doctrine:migrations:migrate
+php bin/console registry:sync
 php bin/console cache:warmup
 ```
 
-This module ships the migrations for the tables it owns and registers their path itself, so `migrate` runs them and an installation writes no version for them; `doctrine:migrations:diff` stays reserved for the installation's own entities and must report no changes after this. In development AssetMapper serves the module's stylesheets and scripts from source; the production image compiles them.
+This module ships the migrations for the tables it owns and registers their path itself, so `migrate` runs them and an installation writes no version for them; `registry:sync` then enters the module in the catalogue and gives every area its row, and prints what it added, kept and retired; `doctrine:migrations:diff` stays reserved for the installation's own entities and must report no changes after this. In development AssetMapper serves the module's stylesheets and scripts from source; the production image compiles them.
 
 The recipe registers the bundles and writes `config/packages/storage.yaml` and
 `config/routes/storage.yaml`. Without Flex, `config/bundles.php` needs three
