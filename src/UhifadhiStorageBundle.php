@@ -119,12 +119,11 @@ final class UhifadhiStorageBundle extends AbstractBundle
          * for its storage machinery alone need not have one.
          */
         if ($builder->hasExtension('framework') && interface_exists(AssetMapperInterface::class)) {
-            // PREPENDED, THE SHAPE EVERY symfony/ux BUNDLE WRITES. `extension()`
-            // appends even when called from prependExtension(), which puts this
-            // path LAST, where it overrules an installation's own framework
-            // config instead of deferring to it; prepended, "any other settings
-            // done explicitly inside the config/* files would override these
-            // prepended settings".
+            // PREPENDED, THE SHAPE EVERY symfony/ux BUNDLE WRITES — and the one form
+            // every block in this method takes, `prependExtensionConfig()` on the
+            // builder, so this path goes FIRST and an installation's own framework
+            // config wins: \"any other settings done explicitly inside the config/*
+            // files would override these prepended settings\".
             //
             // @see https://symfony.com/doc/current/bundles/prepend_extension.html
             // @see https://symfony.com/doc/current/frontend/create_ux_bundle.html
@@ -155,7 +154,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
          * @see vendor/uhifadhi/uhifadhi/src/Uhifadhi/Bundle/ShellBundle/ShellBundle.php
          */
         if ($builder->hasExtension('ux_icons')) {
-            $container->extension('ux_icons', [
+            $builder->prependExtensionConfig('ux_icons', [
                 'icon_sets' => [
                     'storage' => ['path' => \dirname(__DIR__).'/assets/icons/storage'],
                 ],
@@ -177,18 +176,18 @@ final class UhifadhiStorageBundle extends AbstractBundle
          * doctrine:migrations:migrate and nothing else.
          */
         if ($builder->hasExtension('doctrine')) {
-            $container->extension('doctrine', ['orm' => ['mappings' => ['UhifadhiStorage' => [
+            $builder->prependExtensionConfig('doctrine', ['orm' => ['mappings' => ['UhifadhiStorage' => [
                 'type' => 'attribute',
                 'dir' => __DIR__.'/Entity',
                 'prefix' => 'Uhifadhi\\Storage\\Entity',
                 'is_bundle' => false,
-            ]]]], prepend: true);
+            ]]]]);
         }
 
         if ($builder->hasExtension('doctrine_migrations')) {
-            $container->extension('doctrine_migrations', ['migrations_paths' => [
+            $builder->prependExtensionConfig('doctrine_migrations', ['migrations_paths' => [
                 'Uhifadhi\\Storage\\Migrations' => \dirname(__DIR__).'/migrations',
-            ]], prepend: true);
+            ]]);
         }
 
         /*
@@ -218,7 +217,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
             ];
         }
 
-        $container->extension('flysystem', ['storages' => $storages]);
+        $builder->prependExtensionConfig('flysystem', ['storages' => $storages]);
     }
 
     /**
