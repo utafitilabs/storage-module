@@ -503,8 +503,6 @@ final class UhifadhiStorageBundle extends AbstractBundle
         }
 
         if ($screens) {
-            $permission = $files['settings_permission'] ?? null;
-
             /*
              * THE HUB IS A DECLARED DASHBOARD SURFACE, tagged by hand because a
              * reusable bundle is not autoconfigured. The tag is what makes the
@@ -566,8 +564,6 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('storage.sources_board'),
                     service('storage.storage_board'),
                     service('storage.settings'),
-                    service('security.authorization_checker'),
-                    \is_string($permission) && '' !== $permission ? $permission : 'ROLE_ADMIN',
                 ])
                 ->public();
 
@@ -604,9 +600,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
                 ->args([
                     service('storage.target_service'),
                     service('router'),
-                    service('security.authorization_checker'),
                     service('security.csrf.token_manager'),
-                    \is_string($permission) && '' !== $permission ? $permission : 'ROLE_ADMIN',
                 ])
                 ->public();
 
@@ -620,10 +614,8 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('shell.widget.endpoint'),
                     service('router'),
                     service('security.token_storage'),
-                    service('security.authorization_checker'),
                     service('security.csrf.token_manager'),
                     service('storage.target_board'),
-                    \is_string($permission) && '' !== $permission ? $permission : 'ROLE_ADMIN',
                 ])
                 ->public();
         }

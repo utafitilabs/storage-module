@@ -34,6 +34,7 @@ use Uhifadhi\Bundle\TeamBundle\TeamBundle;
 use Uhifadhi\Storage\Registry\FileRegistry;
 use Uhifadhi\Storage\Registry\FileSourceInterface;
 use Uhifadhi\Storage\Service\EvidenceStorage;
+use Uhifadhi\Storage\Tests\Integration\Fixtures\CollectedModules;
 use Uhifadhi\Storage\Tests\Integration\Fixtures\StubDeclaringSource;
 use Uhifadhi\Storage\Tests\Integration\Fixtures\StubEvidenceVoter;
 use Uhifadhi\Storage\Tests\Integration\Fixtures\StubFileSource;
@@ -41,6 +42,8 @@ use Uhifadhi\Storage\Tests\Integration\Fixtures\StubUploadPageController;
 use Uhifadhi\Storage\Tests\Integration\Fixtures\StubUploadTarget;
 use Uhifadhi\Storage\UhifadhiStorageBundle;
 use Uhifadhi\Storage\Upload\UploadTargetInterface;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 /**
  * The smallest installation this bundle can live in: framework + twig +
@@ -277,6 +280,17 @@ final class TestKernel extends Kernel
             ->set(StubUploadPageController::class)
             ->args([new Reference('twig')])
             ->public();
+
+        // WHAT THE MODULE TAG COLLECTED, so a specification can ask whether
+        // this bundle's provider reached the catalogue's own iterator.
+        $container->services()
+            ->set(CollectedModules::class)
+            ->args([tagged_iterator('uhifadhi.module')])
+            ->public();
+
+        // The core's grants matrix, so a specification can ask whether this
+        // module's pairs reached it.
+        $container->services()->alias('test_public.team.access.catalogue', 'team.access.catalogue')->public();
 
         // Public aliases so the tests can reach private services. The routes
         // reference them too, but a test needs a handle of its own.

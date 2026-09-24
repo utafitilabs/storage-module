@@ -21,10 +21,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 use Twig\Environment;
 use Uhifadhi\Bundle\ShellBundle\Widget\Model\WidgetDom;
@@ -85,6 +85,14 @@ final class FilesController
     /** A file's own page. It is INSIDE the section, not one of its screens. */
     public const string SHOW = 'storage_files_show';
 
+    /**
+     * WHAT THE SETTINGS SCREENS ASK FOR. Seeing where files are kept is seeing
+     * something about every file at once, so it is the module's own configure
+     * pair rather than being signed in — declared in
+     * {@see \Uhifadhi\Storage\Access\StorageConcerns}, spelt once here.
+     */
+    public const string SETTINGS_PAIR = 'storage.configure';
+
     public function __construct(
         private readonly Environment $twig,
         private readonly FileRegistry $registry,
@@ -94,10 +102,8 @@ final class FilesController
         private readonly WidgetEndpoint $widgetEndpoint,
         private readonly UrlGeneratorInterface $router,
         private readonly TokenStorageInterface $tokens,
-        private readonly AuthorizationCheckerInterface $authorization,
         private readonly CsrfTokenManagerInterface $csrf,
         private readonly TargetBoard $targetBoard,
-        private readonly string $settingsPermission,
     ) {
     }
 
@@ -201,17 +207,9 @@ final class FilesController
      * where the bytes end up.
      */
     #[Route('/files/settings', name: self::SETTINGS, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
+    #[IsGranted(self::SETTINGS_PAIR)]
     public function settings(): Response
     {
-        $this->denyAnonymous();
-
-        // Seeing where files are kept is seeing something about every file at
-        // once, so it rides on the deployment's administrator permission rather
-        // than on being signed in.
-        if (!$this->authorization->isGranted($this->settingsPermission)) {
-            throw new AccessDeniedHttpException('Only an administrator may see where files are kept.');
-        }
-
         return $this->render('@UhifadhiStorage/files/settings.html.twig', [
             ...$this->targetBoard->read(),
             'targetToken' => $this->csrf->getToken(StorageTargetController::TOKEN)->getValue(),

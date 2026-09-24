@@ -40,7 +40,6 @@ final class LegacyTargetShapeTest extends TestCase
             'directory' => '/srv/app/var/storage/evidence',
         ],
         'files' => [
-            'settings_permission' => 'module.create',
             'storage_label' => 'This server',
             'storage_location' => 'Local disk',
         ],

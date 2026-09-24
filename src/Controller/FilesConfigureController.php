@@ -14,9 +14,8 @@ declare(strict_types=1);
 namespace Uhifadhi\Storage\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
 use Uhifadhi\Storage\Registry\FileRegistry;
 use Uhifadhi\Storage\Service\SourcesBoard;
@@ -72,16 +71,13 @@ final readonly class FilesConfigureController
         private SourcesBoard $sources,
         private StorageBoard $storage,
         private StorageSettings $settings,
-        private AuthorizationCheckerInterface $authorization,
-        private string $settingsPermission,
     ) {
     }
 
     #[Route('/files/configure', name: self::SETTINGS, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function settings(): Response
     {
-        $this->denyOutsiders();
-
         $rows = $this->storage->rows();
 
         return $this->render('@UhifadhiStorage/files/configure.html.twig', [
@@ -91,16 +87,15 @@ final readonly class FilesConfigureController
             'places' => $this->settings->places(),
             'targets' => $rows,
             'warningPercent' => $this->storage->warningPercent(),
-            'settingsPermission' => $this->settingsPermission,
+            'settingsPair' => FilesController::SETTINGS_PAIR,
             'failedThumbnails' => $this->registry->counts()['failed'],
         ]);
     }
 
     #[Route('/files/configure/sources', name: self::SOURCES, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function sources(): Response
     {
-        $this->denyOutsiders();
-
         return $this->render('@UhifadhiStorage/files/configure_sources.html.twig', [
             'rows' => $this->sources->rows(),
             'seam' => $this->sources->seam(),
@@ -113,12 +108,5 @@ final readonly class FilesConfigureController
     private function render(string $template, array $context): Response
     {
         return new Response($this->twig->render($template, $context));
-    }
-
-    private function denyOutsiders(): void
-    {
-        if (!$this->authorization->isGranted($this->settingsPermission)) {
-            throw new AccessDeniedHttpException('Only an administrator may see how the Files hub is set up.');
-        }
     }
 }

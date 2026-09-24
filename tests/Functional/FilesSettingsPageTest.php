@@ -46,11 +46,18 @@ final class FilesSettingsPageTest extends FilesTestCase
         self::assertResponseStatusCodeSame(403, 'seeing where files are kept is seeing something about every file at once');
     }
 
-    public function testAStrangerIsRefusedToo(): void
+    /**
+     * A STRANGER IS ASKED TO SIGN IN. The route's pair is asked by the
+     * firewall before the controller runs, and a person who is nobody yet is
+     * not refused but sent to authenticate — this kernel names no entry
+     * point, so that reads as 401 here and as the sign-in page in an
+     * installation.
+     */
+    public function testAStrangerIsAskedToSignIn(): void
     {
         static::createClient()->request('GET', '/files/settings');
 
-        self::assertResponseStatusCodeSame(403);
+        self::assertResponseStatusCodeSame(401);
     }
 
     public function testItNamesThePlaceThisDeploymentActuallyConfigured(): void

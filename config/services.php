@@ -13,8 +13,11 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Uhifadhi\Contracts\Access\ConcernSourceInterface;
+use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\MessageHandler\MoveStoredFileHandler;
 use Uhifadhi\Storage\Model\EvidenceConstraints;
+use Uhifadhi\Storage\Module\StorageModuleProvider;
 use Uhifadhi\Storage\Registry\FileRegistry;
 use Uhifadhi\Storage\Registry\FileSourceInterface;
 use Uhifadhi\Storage\Registry\UploadTargetRegistry;
@@ -283,4 +286,23 @@ return static function (ContainerConfigurator $container): void {
     $services->set('storage.upload_targets', UploadTargetRegistry::class)
         ->args([tagged_iterator(UploadTargetInterface::TAG)]);
     $services->alias(UploadTargetRegistry::class, 'storage.upload_targets');
+
+    /*
+     * THE MODULE, AS THE CATALOGUE SEES IT. Tagged by hand — a reusable bundle
+     * is not autoconfigured, and a provider that forgot the tag is a module
+     * that never appears in any area's Modules section. Unconditional: the
+     * registry ships in the core this package requires, so there is no kernel
+     * to guard against.
+     */
+    $services->set('storage.module_provider', StorageModuleProvider::class)
+        ->tag('uhifadhi.module');
+
+    /*
+     * WHAT THERE IS TO HAVE A PERMISSION ABOUT, declared to the core's grants
+     * matrix. Tagged by hand for the same reason; a source that forgot the tag
+     * would have every one of its gates refuse, which reads exactly like a
+     * permission nobody granted.
+     */
+    $services->set('storage.access.concerns', StorageConcerns::class)
+        ->tag(ConcernSourceInterface::TAG);
 };

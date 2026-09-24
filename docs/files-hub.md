@@ -52,17 +52,17 @@ storage:
     type: attribute
 ```
 
-**2 · Point the settings page at the installation's own administrator
-permission.** It defaults to `ROLE_ADMIN` so it works out of the box; an
-installation with a permission catalogue (the core's `TeamBundle`) should name the
-Modules permission instead, because seeing where files are kept is seeing
-something about every file at once:
+**2 · Grant the settings pair.** The hub is open to anybody signed in; the
+settings screens — what a file may be, where the bytes go, moving them — ask for
+`storage.configure`, one of the two pairs this module declares to the core's
+grants matrix (`storage.read` · `storage.configure`, organization-wide). Grant
+it to the positions that keep the organization's files, from the positions
+screen. Name the place while you are here:
 
 ```yaml
 # config/packages/storage.yaml
 storage:
     files:
-        settings_permission: 'module.create'    # default: ROLE_ADMIN
         storage_label: 'Hetzner'                # what YOU call the place files go
         storage_location: 'Falkenstein, Germany'
         # enabled: false                        # to ship the storage without the screens
@@ -118,7 +118,7 @@ Moving it to Observatory beside Performance is one constant
 | Widget library | `GET /files/widgets` (+ 8 POSTs) | anyone signed in |
 | A file's own page | `GET /files/f/{key}` | anyone signed in |
 | Remove a file | `POST /files/f/{key}/remove` | whoever the owning record says |
-| Where files go | `GET /files/settings` | `files.settings_permission` |
+| Where files go | `GET /files/settings` | `storage.configure` |
 
 The hub is a **widget dashboard on `ShellBundle`'s widget machinery**: thirteen widgets in
 five headed sections, and all five design directions ship as built-in presets

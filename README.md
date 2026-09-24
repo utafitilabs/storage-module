@@ -10,6 +10,7 @@ authenticated route by which any of it comes back out.
 - [Installation](#installation)
 - [Getting started](#getting-started)
 - [Uploads: one interface, one Twig line](#uploads-one-interface-one-twig-line)
+- [Permissions](#permissions)
 - [Learn more](#learn-more)
 - [License](#license)
 
@@ -169,6 +170,22 @@ names** — photographs, `application/pdf`, and a GPX under the three types a
 track can arrive as. A deployment may narrow it; see
 [docs/configuration.md](docs/configuration.md). The full contract, the worked example, the events and
 the `controllers.json` entry are in [docs/uploads.md](docs/uploads.md).
+
+## Permissions
+
+The module declares one concern to the core's grants matrix, `storage`, with
+two verbs — the pairs every gate and door in this module name:
+
+| Pair | Enforced on |
+|---|---|
+| `storage.read` | reading the settings (declared for the matrix; the hub itself is open to anybody signed in) |
+| `storage.configure` | `GET /files/settings`, `GET /files/configure`, `GET /files/configure/sources`, and every `POST /files/settings/target/…` |
+
+Organization-wide only: the target is one place for every area. Who may see or
+remove a *file* is the owning record's question, asked through the evidence
+voter, never a pair of this module. Every route states its pair with
+`#[IsGranted]`; the module's own `AccessConformanceTest` holds the declaration
+and the routes against each other.
 
 ## Learn more
 

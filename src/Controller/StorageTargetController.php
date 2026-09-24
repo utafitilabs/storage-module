@@ -21,9 +21,9 @@ use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Uhifadhi\Storage\Exception\StorageTargetException;
 use Uhifadhi\Storage\Service\StorageTargetService;
 
@@ -78,13 +78,12 @@ final readonly class StorageTargetController
     public function __construct(
         private StorageTargetService $targets,
         private UrlGeneratorInterface $router,
-        private AuthorizationCheckerInterface $authorization,
         private CsrfTokenManagerInterface $csrf,
-        private string $settingsPermission,
     ) {
     }
 
     #[Route('/files/settings/target', name: self::SWITCH, methods: ['POST'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function switchTarget(Request $request): Response
     {
         return $this->act($request, function () use ($request): string {
@@ -102,6 +101,7 @@ final readonly class StorageTargetController
     }
 
     #[Route('/files/settings/target/move', name: self::MOVE, methods: ['POST'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function move(Request $request): Response
     {
         return $this->act($request, function (): string {
@@ -112,6 +112,7 @@ final readonly class StorageTargetController
     }
 
     #[Route('/files/settings/target/leave', name: self::LEAVE, methods: ['POST'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function leave(Request $request): Response
     {
         return $this->act($request, function (): string {
@@ -124,6 +125,7 @@ final readonly class StorageTargetController
     }
 
     #[Route('/files/settings/target/pause', name: self::PAUSE, methods: ['POST'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function pause(Request $request): Response
     {
         return $this->act($request, function (): string {
@@ -134,6 +136,7 @@ final readonly class StorageTargetController
     }
 
     #[Route('/files/settings/target/resume', name: self::RESUME, methods: ['POST'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function resume(Request $request): Response
     {
         return $this->act($request, function (): string {
@@ -144,6 +147,7 @@ final readonly class StorageTargetController
     }
 
     #[Route('/files/settings/target/clear', name: self::CLEAR, methods: ['POST'])]
+    #[IsGranted(FilesController::SETTINGS_PAIR)]
     public function clear(Request $request): Response
     {
         return $this->act($request, function (): string {
@@ -177,10 +181,6 @@ final readonly class StorageTargetController
      */
     private function act(Request $request, callable $write): Response
     {
-        if (!$this->authorization->isGranted($this->settingsPermission)) {
-            throw new AccessDeniedHttpException('Only an administrator may change where files are kept.');
-        }
-
         $token = $request->request->get('_token');
         if (!\is_string($token) || !$this->csrf->isTokenValid(new CsrfToken(self::TOKEN, $token))) {
             throw new AccessDeniedHttpException('That did not come from the storage page.');
