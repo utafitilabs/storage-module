@@ -49,6 +49,9 @@ use Uhifadhi\Storage\Service\StorageTargetService;
  * No AbstractController: a reusable bundle's controller must not depend on the
  * host's service-subscriber container, so its collaborators are constructor
  * arguments and it is registered explicitly (see config/services.php).
+ *
+ * @see https://symfony.com/doc/current/bundles/best_practices.html
+ * @see vendor/symfony/framework-bundle/Controller/TemplateController.php
  */
 final readonly class StorageTargetController
 {
@@ -156,6 +159,19 @@ final readonly class StorageTargetController
     /**
      * The shape every action shares: the permission, the token, the rule, and
      * the way back to the page that asked.
+     *
+     * The token is checked through the manager rather than a controller helper,
+     * because this class extends nothing: the docs describe exactly this pair —
+     * a token rendered into the form and `isTokenValid(new CsrfToken($id, $t))`
+     * on the way back — and vendor/symfony/security-csrf/CsrfTokenManager.php is
+     * what `AbstractController::isCsrfTokenValid()` itself calls, with the same
+     * two arguments. `security.csrf.token_manager` is defined only where
+     * `framework.csrf_protection` is on, which is part of why this controller is
+     * registered behind the Files-hub guard in UhifadhiStorageBundle rather than
+     * unconditionally.
+     *
+     * @see https://symfony.com/doc/current/security/csrf.html
+     * @see vendor/symfony/security-csrf/CsrfTokenManager.php
      *
      * @param callable(): string $write what to do, and what to say afterwards
      */

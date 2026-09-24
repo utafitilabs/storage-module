@@ -57,6 +57,9 @@ use Uhifadhi\Storage\Widget\FilesWidgets;
  * host's service-subscriber container, so its collaborators are constructor
  * arguments and it is registered explicitly (see config/services.php).
  *
+ * @see https://symfony.com/doc/current/bundles/best_practices.html
+ * @see vendor/symfony/framework-bundle/Controller/TemplateController.php
+ *
  * Registered ONLY where SecurityBundle and TwigBundle are both present — see
  * UhifadhiStorageBundle::loadExtension().
  */

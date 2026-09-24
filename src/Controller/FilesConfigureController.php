@@ -50,6 +50,13 @@ use Uhifadhi\Storage\Shell\FilesSectionTabs;
  *
  * ADMINISTRATORS ONLY. Seeing how the hub is set up is seeing something about
  * every file at once, which is the same reading "Where files go" makes.
+ *
+ * No AbstractController: a reusable bundle's controller must not depend on the
+ * host's service-subscriber container, so its collaborators are constructor
+ * arguments and it is registered explicitly (see config/services.php).
+ *
+ * @see https://symfony.com/doc/current/bundles/best_practices.html
+ * @see vendor/symfony/framework-bundle/Controller/TemplateController.php
  */
 final readonly class FilesConfigureController
 {

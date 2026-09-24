@@ -61,12 +61,14 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service_l
 /**
  * Storage — the platform's file-storage machinery.
  *
- * MECHANISM ONLY. This bundle owns no entities and no screens: the photo
- * records stay in the modules that own them, because only those modules know
- * what a photograph is attached to. What lives here is the part every module
- * would otherwise re-implement, slightly differently each time: the named
- * storages, the validated evidence API, the thumbnails, and the one
- * authenticated route by which any of it comes back out.
+ * MECHANISM FIRST. The photo records stay in the modules that own them,
+ * because only those modules know what a photograph is attached to, and what
+ * lives here is the part every module would otherwise re-implement, slightly
+ * differently each time: the named storages, the validated evidence API, the
+ * thumbnails, and the one authenticated route by which any of it comes back
+ * out. It does own three small tables of its own now — which place files are
+ * written to, where each file already is, and a move between two places — and
+ * it ships their migrations; none of them is a record about a photograph.
  *
  * Zero-config: registering the bundle declares the private "storage.evidence"
  * storage, so no host writes a flysystem.yaml to get one.
