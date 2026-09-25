@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Uhifadhi\Storage\Tests\Unit;
 
 use Uhifadhi\Bundle\AreaBundle\AreaBundle;
+use Uhifadhi\Bundle\AtlasBundle\AtlasBundle;
 use Uhifadhi\Bundle\ShellBundle\ShellBundle;
 use Uhifadhi\Bundle\ShellBundle\Test\VocabularyConformanceTestCase;
 
@@ -73,6 +74,15 @@ final class VocabularyConformanceTest extends VocabularyConformanceTestCase
              * may be spent and may not be redefined.
              */
             self::areaPublicDir().'/area.css',
+            /*
+             * THE ATLAS'S CHART SHEET, because the Files overview and the
+             * storage page draw their ranked rows in the atlas's bar
+             * vocabulary (`.sxbars`, `.sxbar`, `.sxdot`, `.sxmxkey`), which the
+             * atlas ships in chart.css and the shell links in every head. In
+             * the chain for the same reason as area.css: spent here, never
+             * redefined here.
+             */
+            self::atlasPublicDir().'/chart.css',
         ];
     }
 
@@ -135,6 +145,11 @@ final class VocabularyConformanceTest extends VocabularyConformanceTestCase
     private static function shellPublicDir(): string
     {
         return \dirname(new \ReflectionClass(ShellBundle::class)->getFileName() ?: '').'/public';
+    }
+
+    private static function atlasPublicDir(): string
+    {
+        return \dirname(new \ReflectionClass(AtlasBundle::class)->getFileName() ?: '').'/public';
     }
 
     private static function areaPublicDir(): string
