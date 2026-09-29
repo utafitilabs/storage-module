@@ -20,12 +20,14 @@ use Uhifadhi\Contracts\Access\Verb;
 use Uhifadhi\Storage\Module\StorageModuleProvider;
 
 /**
- * WHAT THERE IS TO HAVE A PERMISSION ABOUT IN THIS MODULE — one thing: where
- * the organization's files are kept.
+ * WHAT THERE IS TO HAVE A PERMISSION ABOUT IN THIS MODULE — two things: the
+ * files register, and where the organization's files are kept.
  *
- * READING A FILE IS NOT DECLARED HERE, deliberately. A file belongs to the
+ * READING ONE FILE IS NOT DECLARED HERE, deliberately. A file belongs to the
  * record it hangs off, and whoever may see the record may see the file; that
- * is the owning module's concern and the evidence voter asks it. What this
+ * is the owning module's concern and the evidence voter asks it. THE REGISTER
+ * IS another matter: it lists every file of every record at once, whoever may
+ * see those records, so reading it is a pair of its own. What this
  * module enforces of its own is the hub's settings: how big a file may be,
  * where the bytes go and moving them — seeing which is seeing something about
  * every file at once, and changing which is changing where the organization
@@ -53,6 +55,13 @@ final readonly class StorageConcerns implements ConcernSourceInterface
 {
     /** The key, spelt once, so a gate, a door and a test cannot disagree. */
     public const string STORAGE = 'storage';
+    public const string FILES = 'files';
+
+    /** The register and the screens that read it. */
+    public const string FILES_READ = self::FILES.'.read';
+
+    /** The Storage tab: where the bytes go and how full it is. */
+    public const string STORAGE_READ = self::STORAGE.'.read';
 
     public function declaredBy(): string
     {
@@ -61,6 +70,15 @@ final readonly class StorageConcerns implements ConcernSourceInterface
 
     public function concerns(): iterable
     {
+        yield new Concern(
+            key: self::FILES,
+            label: 'Files',
+            description: 'The files register: every file kept, whichever record it belongs to. A file on a record is seen with the record, without this.',
+            verbs: [Verb::Read],
+            scopeKinds: [ScopeKind::Organization],
+            moduleSlug: StorageModuleProvider::SLUG,
+        );
+
         yield new Concern(
             key: self::STORAGE,
             label: 'Storage',

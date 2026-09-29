@@ -17,11 +17,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Uhifadhi\Bundle\ShellBundle\Contract\NavigationSourceInterface;
 use Uhifadhi\Bundle\ShellBundle\Frame\Service\ModuleFrameService;
 use Uhifadhi\Bundle\ShellBundle\Model\NavItem;
 use Uhifadhi\Bundle\ShellBundle\Model\NavSection;
 use Uhifadhi\Contracts\Shell\NavGroup;
+use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Controller\FilesController;
 use Uhifadhi\Storage\Controller\FilesSectionController;
 
@@ -88,6 +90,7 @@ final readonly class FilesNavigation implements NavigationSourceInterface
         private UrlGeneratorInterface $urls,
         private TokenStorageInterface $tokens,
         private RequestStack $requests,
+        private AuthorizationCheckerInterface $authorization,
     ) {
     }
 
@@ -99,6 +102,12 @@ final readonly class FilesNavigation implements NavigationSourceInterface
          * stranger, so there is nothing to offer either way.
          */
         if (null === $this->tokens->getToken()?->getUser()) {
+            return;
+        }
+
+        // A ROW IS A DOOR, offered only to whoever it opens for: the
+        // register's pair, which every screen of the section asks.
+        if (!$this->authorization->isGranted(StorageConcerns::FILES_READ)) {
             return;
         }
 
@@ -134,7 +143,8 @@ final readonly class FilesNavigation implements NavigationSourceInterface
             $this->screen('Overview', FilesSectionController::OVERVIEW),
             $this->screen('Files', FilesController::REGISTER),
             $this->screen('Sources', FilesSectionController::SOURCES),
-            $this->screen('Storage', FilesSectionController::STORAGE),
+            // THE STORAGE TAB ASKS FOR THE STORAGE PAIR AS WELL.
+            $this->authorization->isGranted(StorageConcerns::STORAGE_READ) ? $this->screen('Storage', FilesSectionController::STORAGE) : null,
         ])) : [];
 
         return new NavItem(

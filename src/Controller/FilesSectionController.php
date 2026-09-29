@@ -17,7 +17,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
+use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Service\FilesSectionOverview;
 use Uhifadhi\Storage\Service\SourcesBoard;
 use Uhifadhi\Storage\Service\StorageBoard;
@@ -68,6 +70,7 @@ final readonly class FilesSectionController
     }
 
     #[Route('/files/overview', name: self::OVERVIEW, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function overview(): Response
     {
         $this->denyAnonymous();
@@ -76,6 +79,7 @@ final readonly class FilesSectionController
     }
 
     #[Route('/files/sources', name: self::SOURCES, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function sources(): Response
     {
         $this->denyAnonymous();
@@ -88,6 +92,8 @@ final readonly class FilesSectionController
     }
 
     #[Route('/files/storage', name: self::STORAGE, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
+    #[IsGranted(StorageConcerns::STORAGE_READ)]
     public function storage(): Response
     {
         $this->denyAnonymous();
@@ -111,8 +117,8 @@ final readonly class FilesSectionController
     }
 
     /**
-     * The section is open to anyone signed in, and not to a stranger: who owns
-     * what is the organization's business.
+     * Behind the register's pair on every route, and never open to a stranger:
+     * who owns what is the organization's business.
      */
     private function denyAnonymous(): void
     {

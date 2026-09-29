@@ -15,8 +15,13 @@ namespace Uhifadhi\Storage\Tests;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use Uhifadhi\Bundle\TeamBundle\Access\ConcernCatalogue;
+use Uhifadhi\Bundle\TeamBundle\Entity\Placement;
+use Uhifadhi\Bundle\TeamBundle\Entity\Position;
 use Uhifadhi\Bundle\TeamBundle\Entity\User;
 use Uhifadhi\Bundle\TeamBundle\Enum\TeamRoleEnum;
+use Uhifadhi\Contracts\Access\ScopeKind;
+use Uhifadhi\Storage\Access\StorageConcerns;
 
 /**
  * THE PEOPLE THE SUITE SIGNS IN, AND THE SCHEMA THEY LIVE IN.
@@ -50,10 +55,42 @@ trait RealPeopleTrait
         $tool->createSchema($metadata);
     }
 
-    /** Anyone signed in. The hub is open to them and shows what their permissions allow. */
+    /**
+     * Anyone signed in, holding nothing: the files register is not theirs, and
+     * a file is theirs to open only through a record they may see.
+     */
     protected static function rangerAccount(): User
     {
         return self::person('ranger@example.test', 'Amina', 'Kileo', TeamRoleEnum::Staff);
+    }
+
+    /**
+     * Staff whose position reads the files register and the storage tab —
+     * somebody who works from the whole organization's records. Placed across
+     * the organization, because a pair reaches only as far as its placement.
+     */
+    protected static function clerkAccount(): User
+    {
+        $clerk = self::person('clerk@example.test', 'Neema', 'Lyimo', TeamRoleEnum::Staff);
+        if (null !== $clerk->getPosition()) {
+            return $clerk;
+        }
+
+        $entityManager = self::entityManager();
+        $catalogue = self::getContainer()->get('test_public.team.access.catalogue');
+        \assert($catalogue instanceof ConcernCatalogue);
+
+        $position = new Position()->setName('Records clerk')->setAllowedKinds([ScopeKind::Organization]);
+        $position->setGrantValues([StorageConcerns::FILES_READ, StorageConcerns::STORAGE_READ], $catalogue->pairs());
+        $placement = new Placement();
+        $placement->acrossTheOrganization();
+        $placement->acrossAllDepartments();
+        $entityManager->persist($position);
+        $entityManager->persist($placement);
+        $clerk->setPosition($position)->setPlacement($placement);
+        $entityManager->flush();
+
+        return $clerk;
     }
 
     /**

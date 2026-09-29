@@ -15,7 +15,9 @@ namespace Uhifadhi\Storage\Org;
 
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Uhifadhi\Contracts\Shell\Scope;
+use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Controller\FilesController;
 use Uhifadhi\Storage\Model\FileEntry;
 use Uhifadhi\Storage\Model\FilesOrgReading;
@@ -50,6 +52,7 @@ final class FilesOrgOverview
         private readonly StoragePlaces $places,
         private readonly ?StorageTargetService $targets = null,
         private readonly ?UrlGeneratorInterface $router = null,
+        private readonly ?AuthorizationCheckerInterface $authorization = null,
     ) {
     }
 
@@ -134,6 +137,11 @@ final class FilesOrgOverview
      */
     private function registerUrl(): ?string
     {
+        // THE CELL'S DOOR OPENS ONLY FOR WHOEVER MAY READ THE REGISTER.
+        if (null !== $this->authorization && !$this->authorization->isGranted(StorageConcerns::FILES_READ)) {
+            return null;
+        }
+
         try {
             return $this->router?->generate(FilesController::REGISTER);
         } catch (RouteNotFoundException) {

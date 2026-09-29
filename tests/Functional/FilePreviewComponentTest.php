@@ -161,7 +161,7 @@ final class FilePreviewComponentTest extends FilesTestCase
      */
     public function testTheHubOpensItsFilesInTheSharedPreview(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(1, $crawler->filter('.f-ov[data-f-overlay]'), 'one preview per page, from the partial');
@@ -183,7 +183,7 @@ final class FilePreviewComponentTest extends FilesTestCase
      */
     public function testTheHubKeepsItsOwnListingAttributeBesideTheContract(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(5, $crawler->filter('[data-f-shapewrap] .f-tile[data-f-id][data-f-preview]'));

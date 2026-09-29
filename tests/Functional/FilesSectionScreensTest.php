@@ -225,24 +225,33 @@ final class FilesSectionScreensTest extends FilesTestCase
     }
 
     /**
-     * THE READING TABS ARE OPEN TO ANYONE SIGNED IN, exactly as the register
-     * is: every original is permission-checked on its way out, so the section
-     * shows LESS to some people rather than being closed to them.
+     * THE READING TABS ARE OPEN TO WHOEVER READS THE REGISTER, exactly as the
+     * register is — and the Storage tab asks for the storage pair as well.
      */
     #[DataProvider('readingTabs')]
-    public function testAnybodySignedInMayReadTheTabs(string $path): void
+    public function testWhoeverReadsTheRegisterMayReadTheTabs(string $path): void
+    {
+        $client = $this->clerk(static::createClient());
+        $client->request('GET', $path);
+
+        self::assertResponseIsSuccessful($path.' is open to whoever reads the register');
+    }
+
+    /** AND CLOSED TO SOMEBODY SIGNED IN WHO DOES NOT. */
+    #[DataProvider('readingTabs')]
+    public function testSomebodySignedInWithoutTheRegistersPairIsRefusedTheTabs(string $path): void
     {
         $client = $this->ranger(static::createClient());
         $client->request('GET', $path);
 
-        self::assertResponseIsSuccessful($path.' is open to anyone signed in');
+        self::assertResponseStatusCodeSame(403, $path);
     }
 
     /** THE CONFIGURE SECTIONS ARE NOT. Seeing how the hub is set up is seeing something about every file at once. */
     #[DataProvider('configureSections')]
     public function testSomebodySignedInButNotAnAdministratorIsRefusedTheConfigureSections(string $path): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->request('GET', $path);
 
         self::assertResponseStatusCodeSame(403, $path);

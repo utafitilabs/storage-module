@@ -175,12 +175,13 @@ the `controllers.json` entry are in [docs/uploads.md](docs/uploads.md).
 
 ## Permissions
 
-The module declares one concern to the core's grants matrix, `storage`, with
-two verbs — the pairs every gate and door in this module name:
+The module declares two concerns to the core's grants matrix, `files` and
+`storage` — the pairs every gate and door in this module name:
 
 | Pair | Enforced on |
 |---|---|
-| `storage.read` | reading the settings (declared for the matrix; the hub itself is open to anybody signed in) |
+| `files.read` | the hub and every screen of the Files section: `GET /files`, `/files/overview`, `/files/sources`, `/files/storage`, the widget library and its POSTs, and `GET /files/f/{key}` — which also opens for whoever may see the record the file belongs to |
+| `storage.read` | the Storage tab, `GET /files/storage`, together with `files.read` |
 | `storage.configure` | `GET /files/settings`, `GET /files/configure`, `GET /files/configure/sources`, and every `POST /files/settings/target/…` |
 
 Organization-wide only: the target is one place for every area. Who may see or

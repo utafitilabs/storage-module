@@ -22,7 +22,9 @@
 
 {% block title %}{{ file.name }}{% endblock %}
 
-{% block shell_breadcrumbs %}<a href="/">uhifadhi</a> / <a href="{{ hubUrl }}">files</a> / {{ file.name }}{% endblock %}
+{# THE REGISTER IS NAMED AS A PLACE only for whoever may open it; somebody
+   here through the record the file hangs off goes back to that record. #}
+{% block shell_breadcrumbs %}<a href="/">uhifadhi</a> / {% if hubUrl %}<a href="{{ hubUrl }}">files</a>{% else %}files{% endif %} / {{ file.name }}{% endblock %}
 
 {% block shell_page_title %}{{ file.name }}{% endblock %}
 
@@ -31,7 +33,7 @@
 {% block shell_page_subtitle %}A file&rsquo;s own page &mdash; linkable, for pointing at.{% endblock %}
 
 {% block shell_page_actions %}
-    <a class="tgl w-act" href="{{ hubUrl }}">{{ ux_icon('shell:chevron-left') }} Back to files</a>
+    {% if hubUrl %}<a class="tgl w-act" href="{{ hubUrl }}">{{ ux_icon('shell:chevron-left') }} Back to files</a>{% endif %}
     {% if file.ownerUrl %}<a class="cta" href="{{ file.ownerUrl }}">Open {{ file.ownerLabel }} &rarr;</a>{% endif %}
 {% endblock %}
 

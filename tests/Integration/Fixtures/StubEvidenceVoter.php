@@ -28,15 +28,22 @@ use Uhifadhi\Storage\Security\EvidenceAccessVoterInterface;
  */
 final class StubEvidenceVoter implements EvidenceAccessVoterInterface
 {
+    /**
+     * REC-0001 IS A RECORD ANYBODY SIGNED IN MAY SEE — the fieldwork source's
+     * first record, standing for the incident whose evidence tiles lead to a
+     * file's own page. Its files are opened through it, without the register.
+     */
+    public const string SEEN_RECORD = 'fieldwork/rec-0001/';
+
     public function claimsKey(string $key): bool
     {
-        return str_starts_with($key, 'granted/') || str_starts_with($key, 'denied/');
+        return str_starts_with($key, 'granted/') || str_starts_with($key, 'denied/') || str_starts_with($key, self::SEEN_RECORD);
     }
 
     public function mayRead(string $key, ?UserInterface $user): bool
     {
         // Even a claimed key needs somebody to be signed in — a module that
         // forgot this check is the reason the voter is passed the user at all.
-        return null !== $user && str_starts_with($key, 'granted/');
+        return null !== $user && (str_starts_with($key, 'granted/') || str_starts_with($key, self::SEEN_RECORD));
     }
 }

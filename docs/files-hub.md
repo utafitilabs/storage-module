@@ -52,12 +52,14 @@ storage:
     type: attribute
 ```
 
-**2 · Grant the settings pair.** The hub is open to anybody signed in; the
-settings screens — what a file may be, where the bytes go, moving them — ask for
-`storage.configure`, one of the two pairs this module declares to the core's
-grants matrix (`storage.read` · `storage.configure`, organization-wide). Grant
-it to the positions that keep the organization's files, from the positions
-screen. Name the place while you are here:
+**2 · Grant the pairs.** The hub lists every file of every record, so it asks
+for `files.read`; the Storage tab asks for `storage.read` as well; the settings
+screens — what a file may be, where the bytes go, moving them — ask for
+`storage.configure`. All three are organization-wide and declared to the core's
+grants matrix by this module. Grant them to the positions that work from the
+organization's files, from the positions screen; Admins and Super Admins hold
+them by tier. A file on a record is opened with the record, without any of
+them. Name the place while you are here:
 
 ```yaml
 # config/packages/storage.yaml
@@ -114,9 +116,10 @@ Moving it to Observatory beside Performance is one constant
 
 | Screen | Route | Who |
 |---|---|---|
-| The hub | `GET /files` | anyone signed in |
-| Widget library | `GET /files/widgets` (+ 8 POSTs) | anyone signed in |
-| A file's own page | `GET /files/f/{key}` | anyone signed in |
+| The hub, Overview, Sources | `GET /files`, `/files/overview`, `/files/sources` | `files.read` |
+| Storage | `GET /files/storage` | `files.read` and `storage.read` |
+| Widget library | `GET /files/widgets` (+ 8 POSTs) | `files.read` |
+| A file's own page | `GET /files/f/{key}` | `files.read`, or whoever may see the record it belongs to |
 | Remove a file | `POST /files/f/{key}/remove` | whoever the owning record says |
 | Where files go | `GET /files/settings` | `storage.configure` |
 
@@ -310,5 +313,5 @@ without touching a template:
 | Where the hub lives in the sidebar | System, above Alerts |
 | A per-area `/areas/{uuid}/files` tab | not in v1 — area is a filter on the hub |
 | Files on a map | not in v1 — no map layer |
-| Who may open the hub | anyone signed in; originals stay voter-gated |
+| Who may open the hub | `files.read`; a file on a record opens with the record; originals stay voter-gated |
 | Removal wording | **remove**, with the record keeping the trail line |

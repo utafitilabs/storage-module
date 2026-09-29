@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace Uhifadhi\Storage\Shell;
 
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Uhifadhi\Contracts\Shell\ModuleTab;
 use Uhifadhi\Contracts\Shell\ModuleTabsInterface;
+use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Controller\FilesController;
 use Uhifadhi\Storage\Controller\FilesSectionController;
 
@@ -53,13 +55,28 @@ final readonly class FilesSectionTabs implements ModuleTabsInterface
         return self::SURFACE;
     }
 
+    public function __construct(
+        private AuthorizationCheckerInterface $authorization,
+    ) {
+    }
+
     public function tabs(): array
     {
-        return [
+        // EVERY TAB ASKS THE PAIRS ITS ROUTE ENFORCES: the register's for
+        // all four, and the storage pair as well for the Storage tab.
+        if (!$this->authorization->isGranted(StorageConcerns::FILES_READ)) {
+            return [];
+        }
+
+        $tabs = [
             new ModuleTab('Overview', FilesSectionController::OVERVIEW),
             new ModuleTab('Files', FilesController::REGISTER),
             new ModuleTab('Sources', FilesSectionController::SOURCES),
-            new ModuleTab('Storage', FilesSectionController::STORAGE),
         ];
+        if ($this->authorization->isGranted(StorageConcerns::STORAGE_READ)) {
+            $tabs[] = new ModuleTab('Storage', FilesSectionController::STORAGE);
+        }
+
+        return $tabs;
     }
 }

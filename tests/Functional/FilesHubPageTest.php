@@ -24,9 +24,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 final class FilesHubPageTest extends FilesTestCase
 {
-    public function testTheHubOpensForAnyoneSignedIn(): void
+    public function testTheHubOpensForWhoeverReadsTheRegister(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertResponseIsSuccessful();
@@ -34,16 +34,30 @@ final class FilesHubPageTest extends FilesTestCase
         self::assertCount(5, $crawler->filter('[data-f-shapewrap] .f-tile'), 'every file the fixture module publishes is on the hub');
     }
 
-    public function testAStrangerIsNotShownWhatThisOrganizationHolds(): void
+    /**
+     * THE REGISTER IS A PAIR OF ITS OWN: it lists every file of every record
+     * at once, so being signed in is not enough to read it.
+     */
+    public function testSomebodySignedInWithoutTheRegistersPairIsRefusedTheHub(): void
     {
-        static::createClient()->request('GET', '/files');
+        $client = $this->ranger(static::createClient());
+        $client->request('GET', '/files');
 
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testAStrangerIsNotShownWhatThisOrganizationHolds(): void
+    {
+        static::createClient()->request('GET', '/files');
+
+        // ASKED TO SIGN IN: the test kernel's firewall has no entry point, so
+        // that reads as 401 here and as the sign-in page in an installation.
+        self::assertResponseStatusCodeSame(401);
+    }
+
     public function testEveryTileCarriesItsOwnerAsALink(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         $tiles = $crawler->filter('[data-f-shapewrap] .f-tile');
@@ -60,7 +74,7 @@ final class FilesHubPageTest extends FilesTestCase
 
     public function testARecordWithNoPageOfItsOwnIsNamedRatherThanLinked(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(
@@ -76,7 +90,7 @@ final class FilesHubPageTest extends FilesTestCase
      */
     public function testThereIsNoUploadControlAnywhereOnTheHub(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(0, $crawler->filter('input[type=file]'));
@@ -89,7 +103,7 @@ final class FilesHubPageTest extends FilesTestCase
 
     public function testAThumbnailIsTheOnlyThingBrowsingEverFetches(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         $sources = $crawler->filter('[data-f-shapewrap] .f-grid .f-tile .sh img')
@@ -103,7 +117,7 @@ final class FilesHubPageTest extends FilesTestCase
 
     public function testAFileWithNothingToShrinkSaysWhatItIsInsteadOfLookingBroken(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(1, $crawler->filter('[data-f-shapewrap] .f-tile .sh.wait'), 'one photograph is still in the queue');
@@ -113,7 +127,7 @@ final class FilesHubPageTest extends FilesTestCase
 
     public function testOneResultSetIsDrawnInTwoShapesRatherThanQueriedTwice(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(5, $crawler->filter('[data-f-shapewrap] .f-grid .f-tile'));
@@ -131,7 +145,7 @@ final class FilesHubPageTest extends FilesTestCase
     #[DataProvider('narrowings')]
     public function testEveryChipIsAQueryParameterTheServerHonours(array $query, int $expected): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files?'.http_build_query($query));
 
         self::assertResponseIsSuccessful();
@@ -154,7 +168,7 @@ final class FilesHubPageTest extends FilesTestCase
 
     public function testAFilterThatFindsNothingSaysWhichFilterToUndo(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files?kind=track&thumb=made');
 
         $empty = $crawler->filter('[data-f-empty]');
@@ -165,7 +179,7 @@ final class FilesHubPageTest extends FilesTestCase
 
     public function testTheHubIsDrawnOnTheHostsWidgetGrid(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(1, $crawler->filter('.w-grid[data-surface=files]'));
@@ -187,7 +201,7 @@ final class FilesHubPageTest extends FilesTestCase
      */
     public function testTheHubDrawsNoAddWidgetsDoorAtTheFootOfTheGrid(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         self::assertCount(0, $crawler->filter('.w-addtile'), 'the surface ends with its last widget, not with a door');
@@ -200,7 +214,7 @@ final class FilesHubPageTest extends FilesTestCase
 
     public function testTheFourCountsAreTheRegistrysOwn(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         $kpis = $crawler->filter('[data-w=kpis] .disp')->each(static fn ($n): string => trim($n->text()));

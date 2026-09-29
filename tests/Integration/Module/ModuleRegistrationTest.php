@@ -67,7 +67,7 @@ final class ModuleRegistrationTest extends KernelTestCase
             }
         }
 
-        self::assertSame(['storage.read', 'storage.configure'], $mine);
+        self::assertSame(['files.read', 'storage.read', 'storage.configure'], $mine);
         self::assertFalse($catalogue->isSensitive(StorageConcerns::STORAGE));
     }
 

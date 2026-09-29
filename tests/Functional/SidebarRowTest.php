@@ -26,9 +26,9 @@ use Uhifadhi\Storage\Shell\FilesNavigation;
  */
 final class SidebarRowTest extends FilesTestCase
 {
-    public function testSomebodySignedInIsOfferedTheHubInTheSidebar(): void
+    public function testWhoeverReadsTheRegisterIsOfferedTheHubInTheSidebar(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         $row = $crawler->filter('a[href="/files"]')->reduce(
@@ -36,6 +36,19 @@ final class SidebarRowTest extends FilesTestCase
         );
 
         self::assertGreaterThan(0, $row->count(), 'the shell offers no Files row');
+    }
+
+    /**
+     * A ROW IS A DOOR, offered only to whoever it opens for. Somebody on a
+     * file's own page through its record is not offered the register.
+     */
+    public function testSomebodyWithoutTheRegistersPairIsNotOfferedTheRow(): void
+    {
+        $client = $this->ranger(static::createClient());
+        $crawler = $client->request('GET', '/files/f/fieldwork/rec-0001/a.jpg');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('nav.nav a[href="/files"]'), 'a row the viewer may not open is absent, not inert');
     }
 
     /**
@@ -56,7 +69,7 @@ final class SidebarRowTest extends FilesTestCase
     {
         self::assertSame(NavGroup::ORGANIZATION, FilesNavigation::SECTION);
 
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files');
 
         $headings = $crawler->filter('.nav .nav-hd')->each(

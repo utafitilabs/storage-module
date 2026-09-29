@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
+use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Registry\FileRegistry;
 use Uhifadhi\Storage\Service\SourcesBoard;
 use Uhifadhi\Storage\Service\StorageBoard;
@@ -88,6 +89,7 @@ final readonly class FilesConfigureController
             'targets' => $rows,
             'warningPercent' => $this->storage->warningPercent(),
             'settingsPair' => FilesController::SETTINGS_PAIR,
+            'registerPair' => StorageConcerns::FILES_READ,
             'failedThumbnails' => $this->registry->counts()['failed'],
         ]);
     }

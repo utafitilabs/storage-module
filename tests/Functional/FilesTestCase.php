@@ -45,6 +45,13 @@ abstract class FilesTestCase extends WebTestCase
         return $client;
     }
 
+    protected function clerk(KernelBrowser $client): KernelBrowser
+    {
+        $client->loginUser(self::clerkAccount());
+
+        return $client;
+    }
+
     protected function warden(KernelBrowser $client): KernelBrowser
     {
         $client->loginUser(self::wardenAccount());

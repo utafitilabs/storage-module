@@ -31,7 +31,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testAFileHasItsOwnPage(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', self::PHOTO);
 
         self::assertResponseIsSuccessful();
@@ -42,7 +42,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testTheOriginalIsReachedThroughThePermissionCheckedRouteAndNoOtherWay(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', self::PHOTO);
 
         self::assertSame(
@@ -54,10 +54,35 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testAFileNobodyHoldsIsANotFoundRatherThanANotAllowed(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->request('GET', '/files/f/fieldwork/rec-0001/nothing.jpg');
 
         self::assertResponseStatusCodeSame(404, 'being told you may not see something confirms it exists');
+    }
+
+    /**
+     * A FILE IS SEEN WITH ITS RECORD. Somebody who may see REC-0001 — the
+     * incident's evidence tile leads here — opens its photograph without the
+     * register, and is not offered the way back to a register they cannot
+     * open.
+     */
+    public function testAFileOpensThroughTheRecordItBelongsToWithoutTheRegister(): void
+    {
+        $client = $this->ranger(static::createClient());
+        $crawler = $client->request('GET', self::PHOTO);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.pg', 'IMG_1204.jpg');
+        self::assertCount(0, $crawler->filter('a[href="/files"]'), 'no door to the register');
+    }
+
+    /** AND A FILE ON A RECORD THEY MAY NOT SEE IS NOT THERE AT ALL. */
+    public function testAFileOnARecordTheViewerMayNotSeeIsANotFound(): void
+    {
+        $client = $this->ranger(static::createClient());
+        $client->request('GET', '/files/f/fieldwork/rec-0002/report.pdf');
+
+        self::assertResponseStatusCodeSame(404, 'not allowed would confirm it exists');
     }
 
     public function testAStrangerSeesNoFilePage(): void
@@ -73,7 +98,7 @@ final class FileDetailPageTest extends FilesTestCase
     #[DataProvider('guards')]
     public function testTheGuardIsTheOwningRecordsAnswerInItsOwnWords(string $key, string $state, string $words, bool $offersRemoval): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/f/'.$key);
 
         self::assertResponseIsSuccessful();
@@ -119,7 +144,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testTheWordIsRemoveAndNeverDelete(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', self::PHOTO);
 
         self::assertStringContainsString('Remove this file', $crawler->filter('[data-f-removeopen]')->text());
@@ -128,7 +153,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testTheRestOfTheRecordsFilesAreShownWithoutThisOne(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', self::PHOTO);
 
         $siblings = $crawler->filter('.f-grid .f-tile');
@@ -138,7 +163,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testAPhotographStillInTheQueueSaysSoRatherThanLookingBroken(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/f/fieldwork/rec-0001/b.jpg');
 
         self::assertStringContainsString('making', $crawler->filter('.f-th')->text());
@@ -147,7 +172,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testRemovingAFileIsHandedToTheOwningModuleWithTheReasonGiven(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->disableReboot();
         $crawler = $client->request('GET', self::PHOTO);
 
@@ -166,7 +191,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testARecordThatAsksForAReasonDoesNotGetAnEmptyOne(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->disableReboot();
         $crawler = $client->request('GET', self::PHOTO);
 
@@ -181,7 +206,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testARemovalThatDidNotComeFromTheFilesOwnPageIsRefused(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->disableReboot();
         $client->request('POST', self::PHOTO.'/remove', ['reason' => 'because', '_token' => 'not a token']);
 
@@ -194,7 +219,7 @@ final class FileDetailPageTest extends FilesTestCase
 
     public function testAFileTheRecordWillNotLetGoOfCannotBeRemovedByPostingAnyway(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->disableReboot();
         // A token minted on a page that DOES offer removal, aimed at a file that
         // does not: the guard is asked again on the way in, so the page's state is

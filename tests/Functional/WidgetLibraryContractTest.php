@@ -33,7 +33,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 {
     public function testTheLibraryHandsTheComponentTheWholeContract(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
 
         self::assertResponseIsSuccessful();
@@ -60,7 +60,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 
     public function testTheCatalogueBlobNamesThisSurfaceAndItsWidgets(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
 
         /** @var array{surface: string, widgets: list<array{id: string}>, groups: list<array{id: string}>, active: array{kind: string, id: string}} $catalog */
@@ -81,7 +81,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 
     public function testEveryWidgetIsPreviewedAsTheRealThing(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
 
         $templates = $crawler->filter('['.WidgetDom::TEMPLATE.']');
@@ -95,7 +95,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 
     public function testThePreviewIsTheWidget(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
         $library = $crawler->filter('['.WidgetDom::TEMPLATE.'=browse]')->html();
         $hub = $client->request('GET', '/files')->filter('[data-w=browse]')->html();
@@ -114,7 +114,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 
     public function testTheLibraryDrawsTheLandmarksTheComponentOwns(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
 
         self::assertCount(1, $crawler->filter('.w-canvas'));
@@ -126,7 +126,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 
     public function testResettingAsksFirstThroughTheHostsOwnDialog(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
         $reset = $crawler->filter('['.WidgetDom::RESET.']');
 
@@ -137,7 +137,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
     #[DataProvider('writes')]
     public function testEveryWriteRefusesWithoutTheHostsToken(string $method, string $path): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->request($method, $path);
 
         self::assertResponseStatusCodeSame(403, $path.' accepted a write with no token');
@@ -176,7 +176,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
     {
         // One kernel across the requests: the session carries the person, and
         // the layout is read back through it.
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->disableReboot();
         $crawler = $client->request('GET', '/files/widgets');
         $token = (string) $crawler->filter('['.WidgetDom::ROOT.']')->attr(WidgetDom::CSRF_TOKEN);
@@ -206,7 +206,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 
     public function testAnUnreadableLayoutIsRefusedRatherThanStored(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
         $token = (string) $crawler->filter('['.WidgetDom::ROOT.']')->attr(WidgetDom::CSRF_TOKEN);
 
@@ -222,7 +222,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
 
     public function testAdoptingADirectionComposesTheHubFromIt(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->disableReboot();
         $crawler = $client->request('GET', '/files/widgets');
         $token = (string) $crawler->filter('['.WidgetDom::ROOT.']')->attr(WidgetDom::CSRF_TOKEN);
@@ -248,7 +248,7 @@ final class WidgetLibraryContractTest extends FilesTestCase
      */
     public function testAnUnknownDirectionIsRefusedAsUnprocessable(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $crawler = $client->request('GET', '/files/widgets');
         $token = (string) $crawler->filter('['.WidgetDom::ROOT.']')->attr(WidgetDom::CSRF_TOKEN);
 
@@ -261,6 +261,8 @@ final class WidgetLibraryContractTest extends FilesTestCase
     {
         static::createClient()->request('GET', '/files/widgets');
 
-        self::assertResponseStatusCodeSame(403);
+        // ASKED TO SIGN IN: the test kernel's firewall has no entry point, so
+        // that reads as 401 here and as the sign-in page in an installation.
+        self::assertResponseStatusCodeSame(401);
     }
 }

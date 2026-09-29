@@ -112,7 +112,7 @@ final class FilesFilterRowTest extends FilesTestCase
 
     public function testChoosingAnOptionNarrowsTheGridAndTheCount(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->request('GET', '/files');
         $crawler = $client->click($this->option($client->getCrawler(), 'area', 'south-block'));
 
@@ -124,7 +124,7 @@ final class FilesFilterRowTest extends FilesTestCase
 
     public function testAModuleOptionFiltersTheGridAndTheCountToThatModule(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->request('GET', '/files?area=south-block');
         $crawler = $client->click($this->option($client->getCrawler(), 'module', 'fieldwork'));
 
@@ -169,7 +169,7 @@ final class FilesFilterRowTest extends FilesTestCase
 
     public function testTheSearchFindsAFileByItsNameAndByItsRecordsReference(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
 
         self::assertCount(1, $client->request('GET', '/files?q=IMG_1204')->filter('[data-f-shapewrap] .f-grid .f-tile'));
         self::assertCount(2, $client->request('GET', '/files?q=REC-0001')->filter('[data-f-shapewrap] .f-grid .f-tile'));
@@ -196,7 +196,7 @@ final class FilesFilterRowTest extends FilesTestCase
 
     public function testTheShapeToggleSurvivesAFilterChange(): void
     {
-        $client = $this->ranger(static::createClient());
+        $client = $this->clerk(static::createClient());
         $client->request('GET', '/files?view=list');
 
         self::assertNotNull($client->getCrawler()->filter('[data-f-grid]')->attr('hidden'));
@@ -228,7 +228,7 @@ final class FilesFilterRowTest extends FilesTestCase
 
     private function client(): KernelBrowser
     {
-        return $this->ranger(static::createClient());
+        return $this->clerk(static::createClient());
     }
 
     private function row(string $url = '/files'): Crawler

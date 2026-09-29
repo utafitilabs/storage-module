@@ -531,6 +531,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('router'),
                     service('security.token_storage'),
                     service('request_stack'),
+                    service('security.authorization_checker'),
                 ])
                 ->tag(ShellBundle::NAV_TAG);
 
@@ -542,6 +543,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
              * would be four doors that do not open.
              */
             $services->set('storage.section_tabs', FilesSectionTabs::class)
+                ->args([service('security.authorization_checker')])
                 ->tag(ModuleTabsInterface::TAG);
             $services->set('storage.section_configuration', FilesSectionConfiguration::class)
                 ->tag(ConfigurationSectionsInterface::TAG);
@@ -590,6 +592,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('storage.places'),
                     service('storage.target_service'),
                     service('router'),
+                    service('security.authorization_checker'),
                 ]);
 
             $services->set('storage.org_widgets', FilesOrgWidgets::class)
@@ -616,6 +619,8 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('security.token_storage'),
                     service('security.csrf.token_manager'),
                     service('storage.target_board'),
+                    service('security.authorization_checker'),
+                    service('storage.evidence_access_decider'),
                 ])
                 ->public();
         }

@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -31,9 +32,11 @@ use Uhifadhi\Bundle\ShellBundle\Widget\Model\WidgetDom;
 use Uhifadhi\Bundle\ShellBundle\Widget\Service\WidgetEndpoint;
 use Uhifadhi\Bundle\ShellBundle\Widget\Service\WidgetService;
 use Uhifadhi\Contracts\Entity\UserInterface as Person;
+use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Model\FileFilter;
 use Uhifadhi\Storage\Registry\FileRegistry;
 use Uhifadhi\Storage\Removal\FileRemovalInterface;
+use Uhifadhi\Storage\Security\EvidenceAccessDecider;
 use Uhifadhi\Storage\Service\FilesSurface;
 use Uhifadhi\Storage\Service\StorageSettings;
 use Uhifadhi\Storage\Service\TargetBoard;
@@ -89,7 +92,7 @@ final class FilesController
      * WHAT THE SETTINGS SCREENS ASK FOR. Seeing where files are kept is seeing
      * something about every file at once, so it is the module's own configure
      * pair rather than being signed in — declared in
-     * {@see \Uhifadhi\Storage\Access\StorageConcerns}, spelt once here.
+     * {@see StorageConcerns}, spelt once here.
      */
     public const string SETTINGS_PAIR = 'storage.configure';
 
@@ -104,6 +107,8 @@ final class FilesController
         private readonly TokenStorageInterface $tokens,
         private readonly CsrfTokenManagerInterface $csrf,
         private readonly TargetBoard $targetBoard,
+        private readonly AuthorizationCheckerInterface $authorization,
+        private readonly EvidenceAccessDecider $evidence,
     ) {
     }
 
@@ -112,6 +117,7 @@ final class FilesController
      * in their own order, with the widgets they switched off simply absent.
      */
     #[Route('/files', name: self::REGISTER, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function index(Request $request): Response
     {
         $this->denyAnonymous();
@@ -133,6 +139,7 @@ final class FilesController
      * partial format and the context every partial receives.
      */
     #[Route('/files/widgets', name: self::WIDGETS, methods: ['GET'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function widgets(): Response
     {
         $this->denyAnonymous();
@@ -154,48 +161,56 @@ final class FilesController
     }
 
     #[Route('/files/widgets/save', name: 'storage_files_widgets_save', methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function saveWidgets(Request $request): Response
     {
         return $this->widgetEndpoint->save($request, new FilesWidgets()->catalog());
     }
 
     #[Route('/files/widgets/preset/{presetId}', name: 'storage_files_widgets_preset', requirements: ['presetId' => '[a-z0-9_-]+'], methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function applyPreset(Request $request, string $presetId): Response
     {
         return $this->widgetEndpoint->applyPreset($request, new FilesWidgets()->catalog(), $presetId);
     }
 
     #[Route('/files/widgets/preset/{presetId}/copy', name: 'storage_files_widgets_preset_copy', requirements: ['presetId' => '[a-z0-9_-]+'], methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function copyPreset(Request $request, string $presetId): Response
     {
         return $this->widgetEndpoint->copyPreset($request, new FilesWidgets()->catalog(), $presetId);
     }
 
     #[Route('/files/widgets/presets', name: 'storage_files_widgets_preset_create', methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function createPreset(Request $request): Response
     {
         return $this->widgetEndpoint->createCustomPreset($request, new FilesWidgets()->catalog());
     }
 
     #[Route('/files/widgets/presets/{presetUuid}/apply', name: 'storage_files_widgets_preset_apply', requirements: ['presetUuid' => self::UUID], methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function applyCustomPreset(Request $request, string $presetUuid): Response
     {
         return $this->widgetEndpoint->applyCustomPreset($request, new FilesWidgets()->catalog(), $this->uuid($presetUuid));
     }
 
     #[Route('/files/widgets/presets/{presetUuid}/rename', name: 'storage_files_widgets_preset_rename', requirements: ['presetUuid' => self::UUID], methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function renameCustomPreset(Request $request, string $presetUuid): Response
     {
         return $this->widgetEndpoint->renameCustomPreset($request, new FilesWidgets()->catalog(), $this->uuid($presetUuid));
     }
 
     #[Route('/files/widgets/presets/{presetUuid}/delete', name: 'storage_files_widgets_preset_delete', requirements: ['presetUuid' => self::UUID], methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function deleteCustomPreset(Request $request, string $presetUuid): Response
     {
         return $this->widgetEndpoint->deleteCustomPreset($request, new FilesWidgets()->catalog(), $this->uuid($presetUuid));
     }
 
     #[Route('/files/widgets/reset', name: 'storage_files_widgets_reset', methods: ['POST'])]
+    #[IsGranted(StorageConcerns::FILES_READ)]
     public function resetWidgets(Request $request): Response
     {
         return $this->widgetEndpoint->reset($request, new FilesWidgets()->catalog());
@@ -238,6 +253,16 @@ final class FilesController
     {
         $this->denyAnonymous();
 
+        // THE REGISTER'S PAIR, OR THE RECORD'S. Somebody who reads the whole
+        // register opens any file in it; anybody else opens a file because
+        // they may see the record it hangs off — the incident's evidence
+        // tile leads here — and is refused as not-found otherwise, before
+        // existence is looked up, so the answer is no oracle.
+        $register = $this->authorization->isGranted(StorageConcerns::FILES_READ);
+        if (!$register && !$this->evidence->mayRead($key, $this->user())) {
+            throw new NotFoundHttpException('There is no such file.');
+        }
+
         $file = $this->registry->find($key);
         if (null === $file) {
             // Not found, never "not allowed": being told you may not see
@@ -259,7 +284,8 @@ final class FilesController
             'removable' => $source instanceof FileRemovalInterface,
             'places' => $this->settings->places(),
             'thumbnailLongEdge' => $this->settings->thumbnailLongEdge(),
-            'hubUrl' => $this->router->generate('storage_files'),
+            // THE WAY BACK TO THE REGISTER only for whoever may open it.
+            'hubUrl' => $register ? $this->router->generate('storage_files') : null,
             'removeToken' => $this->csrf->getToken(self::removeTokenId($key))->getValue(),
         ]);
     }
@@ -324,10 +350,10 @@ final class FilesController
     }
 
     /**
-     * The hub is open to anyone signed in: every file is shown with its owner and
-     * every ORIGINAL is permission-checked on its way out, so the hub can show
-     * less to some people rather than being closed to them. It is not open to a
-     * stranger, because the owners themselves are the organization's business.
+     * The hub asks for the register's pair on its routes; this is the floor
+     * under a file's own page, which also opens through the record. Never open
+     * to a stranger, because the owners themselves are the organization's
+     * business, and every ORIGINAL stays permission-checked on its way out.
      */
     private function denyAnonymous(): void
     {
