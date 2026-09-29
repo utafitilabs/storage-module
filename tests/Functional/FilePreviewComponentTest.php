@@ -107,7 +107,7 @@ final class FilePreviewComponentTest extends FilesTestCase
             'caption' => 'snare line, north ridge',
             'kind' => 'photo',
             'day' => '2026-08-04',
-            'area' => 'demo reserve',
+            'area' => 'seed reserve',
         ]))->filter('div');
 
         self::assertNotNull($trigger->attr('data-f-preview'), 'the marker is what the controller opens on');
@@ -130,7 +130,7 @@ final class FilePreviewComponentTest extends FilesTestCase
             'data-f-caption' => 'snare line, north ridge',
             'data-f-kind' => 'photo',
             'data-f-day' => '2026-08-04',
-            'data-f-area' => 'demo reserve',
+            'data-f-area' => 'seed reserve',
         ];
         foreach ($expected as $attribute => $value) {
             self::assertSame($value, $trigger->attr($attribute), $attribute.' is part of the contract');
