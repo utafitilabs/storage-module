@@ -35,6 +35,8 @@ to a record, never by being put in a folder.
 
 ## Installation
 
+Commands run through the Symfony CLI — `symfony console …` — which hands the project the addresses of the services the skeleton's `compose.yaml` starts. Served some other way, run `php bin/console …` with those addresses written into `.env.local`.
+
 ```console
 composer require uhifadhi/storage-module
 ```
@@ -42,10 +44,10 @@ composer require uhifadhi/storage-module
 Then the installation's four commands, the same four after every change to it:
 
 ```console
-php bin/console cache:clear --no-warmup
-php bin/console doctrine:migrations:migrate
-php bin/console registry:sync
-php bin/console cache:warmup
+symfony console cache:clear --no-warmup
+symfony console doctrine:migrations:migrate
+symfony console registry:sync
+symfony console cache:warmup
 ```
 
 This module ships the migrations for the tables it owns and registers their path itself, so `migrate` runs them and an installation writes no version for them; `registry:sync` then enters the module in the catalogue and gives every area its row, and prints what it added, kept and retired; `doctrine:migrations:diff` stays reserved for the installation's own entities and must report no changes after this. In development AssetMapper serves the module's stylesheets and scripts from source; the production image compiles them.
