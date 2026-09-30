@@ -77,6 +77,20 @@ function instant(iso, reading, shape) {
 
 export default class extends Controller {
     connect() {
+        /* THE OVERLAY LIVES ON THE BODY. Rendered where the page includes it, it
+           sits inside `.page`, whose `z-index: 1` makes a stacking context (it
+           keeps map panes under the sticky top bar), and a z-index only ranks
+           within its own stacking context - so the sidebar drew over the
+           overlay's left edge (#70). Moved to the body it ranks against the
+           shell itself - as the shell's widget picker does (widgets.js,
+           "the add-widget picker"). Stimulus disconnects and connects it again on the move,
+           and that second connect finds it already there.
+           https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Positioned_layout/Stacking_context */
+        if (this.element.parentElement !== document.body) {
+            document.body.appendChild(this.element);
+
+            return;
+        }
         this.openedFrom = null;
         this.pool = [];
         this.onClick = this.handleClick.bind(this);
