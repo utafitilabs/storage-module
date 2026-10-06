@@ -16,6 +16,7 @@ namespace Uhifadhi\Storage\Tests;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Uhifadhi\Bundle\TeamBundle\Access\ConcernCatalogue;
+use Uhifadhi\Bundle\TeamBundle\Entity\Department;
 use Uhifadhi\Bundle\TeamBundle\Entity\Placement;
 use Uhifadhi\Bundle\TeamBundle\Entity\Position;
 use Uhifadhi\Bundle\TeamBundle\Entity\User;
@@ -82,9 +83,11 @@ trait RealPeopleTrait
 
         $position = new Position()->setName('Records clerk')->setAllowedKinds([ScopeKind::Organization]);
         $position->setGrantValues([StorageConcerns::FILES_READ, StorageConcerns::STORAGE_READ], $catalogue->pairs());
-        $placement = new Placement();
-        $placement->acrossTheOrganization();
-        $placement->acrossAllDepartments();
+        // EVERY PLACEMENT NAMES ONE DEPARTMENT: somebody in none reaches no
+        // module's records.
+        $records = new Department()->setName('Records');
+        $placement = new Placement()->acrossTheOrganization()->inDepartment($records);
+        $entityManager->persist($records);
         $entityManager->persist($position);
         $entityManager->persist($placement);
         $clerk->setPosition($position)->setPlacement($placement);
