@@ -19,12 +19,6 @@
             "homepage": "https://github.com/eemjema"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/utafitilabs/uhifadhi"
-        }
-    ],
     "require": {
         "doctrine/dbal": "^4.0",
         "doctrine/doctrine-bundle": "^3.0",
