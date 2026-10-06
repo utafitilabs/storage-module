@@ -190,6 +190,12 @@ voter, never a pair of this module. Every route states its pair with
 `#[IsGranted]`; the module's own `AccessConformanceTest` holds the declaration
 and the routes against each other.
 
+The pairs are asked with no area: the Files section is the organization's,
+so a position holding a pair opens it wherever the holder is placed, and the
+two tiers open every screen. Every route, called as every kind of person, is
+in [the authority table](tests/Functional/authority-table.md); how it is kept
+is in [docs/development.md](docs/development.md#the-authority-table).
+
 ## Learn more
 
 - [docs/charter.md](docs/charter.md) — what belongs in this bundle and what stays in the owning module.

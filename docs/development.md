@@ -4,6 +4,7 @@
 
 - [Running the suite](#running-the-suite)
 - [The test kernel](#the-test-kernel)
+- [The authority table](#the-authority-table)
 - [What CI does without](#what-ci-does-without)
 
 ## Running the suite
@@ -31,6 +32,27 @@ own fixtures rather than by a bundle that brings PostGIS with it.
 
 The integration suite writes real bytes into a temp directory, because a mocked
 filesystem would only be testing the mock.
+
+## The authority table
+
+`tests/Functional/AuthorityTableTest.php` calls every route this module mounts
+as every kind of person — signed out, deactivated, Staff with no position,
+Staff holding the route's pair at Kilimani, Staff holding every other pair,
+Staff holding the pair at Tambarare, an Admin, a Super Admin — and compares
+the answers with `tests/Functional/authority-table.md`. The base,
+`Uhifadhi\Test\AuthorityTableTestCase`, ships with the core; the world it
+seeds is the core's, so the table runs in its own kernel,
+`tests/Functional/Authority/AuthorityKernel.php`: every core bundle, the
+skeleton's security file, and the suite's fixture file source, evidence voter
+and upload target. The rows that reach a record's file show storage's floor
+under the fixture's answer, not a real module's rule.
+
+A change in who may open what fails the build until it is recorded and its
+diff is read:
+
+```console
+UHIFADHI_RECORD_AUTHORITY_TABLE=1 vendor/bin/phpunit tests/Functional/AuthorityTableTest.php
+```
 
 ## What CI does without
 
