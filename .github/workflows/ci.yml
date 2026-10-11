@@ -20,18 +20,16 @@ jobs:
       matrix:
         php: ['8.4', '8.5']
 
-    # A real database for the integration suite, and the charter is intact:
-    # this bundle owns no entities. The database is the core's — the Files hub is
-    # a widget dashboard, one person's arrangement of one is a stored row, and
-    # the bundle that owns the row owns its schema. Plain Postgres: the kernel
-    # boots the registry, the shell and the team, none of which stores geometry,
-    # and AreaBundle — the one core bundle that does — is not in it.
+    # A real database for the integration suite: the bundle's own tables and the
+    # core's. PostGIS, because the authority table runs in a kernel with the
+    # whole core an installation has, AreaBundle's geometry included; the
+    # suite's own kernel leaves Area out and asks nothing of the extension.
     #
     # The bytes are a different thing entirely and still go where they always
     # did: the local adapter writes them into a temp directory during the tests.
     services:
       postgres:
-        image: postgres:17
+        image: ghcr.io/utafitilabs/postgis:17
         env:
           POSTGRES_USER: app
           POSTGRES_PASSWORD: app
