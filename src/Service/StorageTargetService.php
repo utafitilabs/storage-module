@@ -116,6 +116,15 @@ final readonly class StorageTargetService
             throw StorageTargetException::moveInFlight();
         }
 
+        // ONE OLD PLACE AT A TIME. While the last switch's old place still
+        // stands read-only, a further switch would leave two places answering
+        // for what they hold; it waits until that place is moved out and
+        // cleared.
+        $retired = $this->targets->findRetired();
+        if (null !== $retired) {
+            throw StorageTargetException::retiredStillStanding($retired->getPlaceId());
+        }
+
         // THE OLD PLACE BECOMES READ-ONLY, NOT GONE. It keeps answering for
         // every file it holds until the count reaches zero and somebody clears
         // it deliberately.

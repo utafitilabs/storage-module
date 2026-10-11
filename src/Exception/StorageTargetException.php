@@ -54,6 +54,11 @@ final class StorageTargetException extends \RuntimeException
         return new self('This move is not waiting to be taken up.');
     }
 
+    public static function retiredStillStanding(string $placeId): self
+    {
+        return new self(\sprintf('"%s" still holds files from before the last switch. Move them and clear it before switching again.', $placeId));
+    }
+
     public static function nothingRetired(): self
     {
         return new self('There is no old target. Everything already lives in one place.');

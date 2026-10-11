@@ -275,6 +275,25 @@ final class StorageTargetStatesTest extends FilesTestCase
     }
 
     /** Switching somewhere that is not configured is refused, in words. */
+    /**
+     * A SECOND SWITCH WAITS FOR THE FIRST TO BE FINISHED WITH. While the old
+     * place is still standing read-only, switching again — back to it, or on
+     * to anywhere — is refused with what to do first, and nothing changes.
+     */
+    public function testSwitchingAgainWhileTheOldPlaceStillStandsIsRefusedInWords(): void
+    {
+        $client = $this->warden(static::createClient());
+        $this->given(['evidence/a.jpg' => 1_000], 'evidence');
+        $this->switchTo($client, self::OTHER);
+        $this->post($client, '/files/settings/target/leave');
+
+        $crawler = $this->switchTo($client, 'evidence');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('still holds files from before the last switch', $crawler->filter('body')->text());
+        self::assertSame(self::OTHER, self::targets($client)->currentPlaceId(), 'files still go where the first switch sent them');
+    }
+
     public function testSwitchingToAPlaceNobodyConfiguredIsRefused(): void
     {
         $client = $this->warden(static::createClient());
