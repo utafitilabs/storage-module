@@ -31,6 +31,7 @@ use Twig\Environment;
 use Uhifadhi\Bundle\ShellBundle\Widget\Model\WidgetDom;
 use Uhifadhi\Bundle\ShellBundle\Widget\Service\WidgetEndpoint;
 use Uhifadhi\Bundle\ShellBundle\Widget\Service\WidgetService;
+use Uhifadhi\Contracts\Access\WholeOrganization;
 use Uhifadhi\Contracts\Entity\UserInterface as Person;
 use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Model\FileFilter;
@@ -228,6 +229,8 @@ final class FilesController
         return $this->render('@UhifadhiStorage/files/settings.html.twig', [
             ...$this->targetBoard->read(),
             'targetToken' => $this->csrf->getToken(StorageTargetController::TOKEN)->getValue(),
+            // THE FORMS ASK WHAT THEIR ROUTES ASK: the whole organization.
+            'mayChangeTarget' => $this->authorization->isGranted(self::SETTINGS_PAIR, new WholeOrganization()),
             'places' => $this->settings->places(),
             'map' => $this->settings->map(),
             'allowed' => $this->settings->allowed(),
@@ -259,9 +262,7 @@ final class FilesController
         // tile leads here — and is refused as not-found otherwise, before
         // existence is looked up, so the answer is no oracle.
         $register = $this->authorization->isGranted(StorageConcerns::FILES_READ);
-        if (!$register && !$this->evidence->mayRead($key, $this->user())) {
-            throw new NotFoundHttpException('There is no such file.');
-        }
+        $this->denyUnlessMayOpen($key);
 
         $file = $this->registry->find($key);
         if (null === $file) {
@@ -304,6 +305,9 @@ final class FilesController
     public function remove(Request $request, string $key): Response
     {
         $this->denyAnonymous();
+        // WHAT THE FILE'S PAGE ASKS, FIRST: a file somebody may not open is
+        // not theirs to remove, and the answer is the page's not-found.
+        $this->denyUnlessMayOpen($key);
 
         $token = $request->request->get('_token');
         if (!\is_string($token) || !$this->csrf->isTokenValid(new CsrfToken(self::removeTokenId($key), $token))) {
@@ -330,6 +334,18 @@ final class FilesController
         $source->remove($key, $this->user(), $reason);
 
         return new RedirectResponse($this->router->generate('storage_files'));
+    }
+
+    /**
+     * WHO OPENS A FILE: somebody who reads the whole register, or somebody who
+     * may see the record it hangs off. Anybody else is answered not-found,
+     * before existence is looked up, so the answer is no oracle.
+     */
+    private function denyUnlessMayOpen(string $key): void
+    {
+        if (!$this->authorization->isGranted(StorageConcerns::FILES_READ) && !$this->evidence->mayRead($key, $this->user())) {
+            throw new NotFoundHttpException('There is no such file.');
+        }
     }
 
     /**

@@ -21,9 +21,11 @@ use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Uhifadhi\Contracts\Access\WholeOrganization;
 use Uhifadhi\Storage\Exception\StorageTargetException;
 use Uhifadhi\Storage\Service\StorageTargetService;
 
@@ -79,6 +81,7 @@ final readonly class StorageTargetController
         private StorageTargetService $targets,
         private UrlGeneratorInterface $router,
         private CsrfTokenManagerInterface $csrf,
+        private AuthorizationCheckerInterface $authorization,
     ) {
     }
 
@@ -181,6 +184,13 @@ final readonly class StorageTargetController
      */
     private function act(Request $request, callable $write): Response
     {
+        // WHERE FILES GO IS THE WHOLE ORGANIZATION'S SETTING: every area's
+        // files go there, so the pair is asked of the organization itself,
+        // and somebody who holds it at one area changes nothing here.
+        if (!$this->authorization->isGranted(FilesController::SETTINGS_PAIR, new WholeOrganization())) {
+            throw new AccessDeniedHttpException('Where files go is changed by somebody whose authority reaches the whole organization.');
+        }
+
         $token = $request->request->get('_token');
         if (!\is_string($token) || !$this->csrf->isTokenValid(new CsrfToken(self::TOKEN, $token))) {
             throw new AccessDeniedHttpException('That did not come from the storage page.');

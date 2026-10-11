@@ -7,7 +7,8 @@
    trying to act on. TargetBoard says which; this writes it.
 
    EVERY CONTROL IS A POST BEHIND A TOKEN. Moving four thousand files is not
-   something a link somebody can be sent should be able to start. #}
+   something a link somebody can be sent should be able to start. With no
+   token — a viewer who may not change where files go — no form is drawn. #}
 
 {% macro state(state, current, retired, alternatives, move, remaining, canClear, rate, secondsLeft, token) %}
     {% import _self as tgt %}
@@ -28,14 +29,14 @@
 {% macro one(current, alternatives, token) %}
     <div class="rln"><span>Other places holding files</span><span class="mono d">none</span></div>
     {% if alternatives is not empty %}
-        <form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::SWITCH')) }}">
+        {% if token %}<form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::SWITCH')) }}">
             <input type="hidden" name="_token" value="{{ token }}">
             <select class="fld" name="place" aria-label="The place to switch to">
                 {% for place in alternatives %}<option value="{{ place.id }}">{{ place.label }}</option>{% endfor %}
             </select>
             <span class="sp"></span>
             <button class="btn" type="submit">Switch target {{ ux_icon('shell:arrow-right', {width: 14, height: 14}) }}</button>
-        </form>
+        </form>{% endif %}
     {% endif %}
     {# Naming a new target moves nothing by itself — the next step asks. #}
     <div class="f-tfoot">{% if alternatives is empty %}Everything lives in one place &middot; no second place is configured to switch to.{% else %}Everything lives in one place.{% endif %}</div>
@@ -51,14 +52,14 @@
     <div class="f-ask">
         <b>Move the existing {{ remaining.files|number_format(0, '.', ' ') }} files ({{ remaining.bytes|storage_bytes }}) to {{ current.label }} so everything lives in one place?</b>
         <div class="f-acts">
-            <form method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::MOVE')) }}">
+            {% if token %}<form method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::MOVE')) }}">
                 <input type="hidden" name="_token" value="{{ token }}">
                 <button class="cta" type="submit">Move them</button>
-            </form>
-            <form method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::LEAVE')) }}">
+            </form>{% endif %}
+            {% if token %}<form method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::LEAVE')) }}">
                 <input type="hidden" name="_token" value="{{ token }}">
                 <button class="btn" type="submit">Leave them on {{ retired ? retired.label : 'the old place' }}</button>
-            </form>
+            </form>{% endif %}
         </div>
     </div>
     <div class="rln"><span>Move them</span><span class="mono d">copy &middot; verify &middot; delete, one file at a time</span></div>
@@ -85,11 +86,11 @@
     {% if retired %}
         <div class="rln"><span>{{ retired.label }}</span><span><span class="chip">read-only</span> <span class="f-note">still serving every file it holds</span></span></div>
     {% endif %}
-    <form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::' ~ (move.state.value == 'paused' ? 'RESUME' : 'PAUSE'))) }}">
+    {% if token %}<form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::' ~ (move.state.value == 'paused' ? 'RESUME' : 'PAUSE'))) }}">
         <input type="hidden" name="_token" value="{{ token }}">
         <span class="sp"></span>
         <button class="btn" type="submit">{{ move.state.value == 'paused' ? 'Resume' : 'Pause' }}</button>
-    </form>
+    </form>{% endif %}
     <div class="f-tfoot"><b>Left to move:</b> {{ remaining.files|number_format(0, '.', ' ') }} files &middot; {{ remaining.bytes|storage_bytes }}.</div>
 {% endmacro %}
 
@@ -98,11 +99,11 @@
     {% if retired %}
         <div class="rln"><span>{{ retired.label }}</span><span class="mono d">0 files &middot; read-only</span></div>
         {% if canClear %}
-            <form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::CLEAR')) }}">
+            {% if token %}<form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::CLEAR')) }}">
                 <input type="hidden" name="_token" value="{{ token }}">
                 <span class="sp"></span>
                 <button class="btn danger" type="submit">Clear the old target</button>
-            </form>
+            </form>{% endif %}
         {% endif %}
         <div class="f-tfoot">Available because the count reached zero, and not before.</div>
     {% else %}
@@ -116,11 +117,11 @@
     <div class="rln"><span>{{ current.label }}</span><span class="mono d">everything filed since the switch</span></div>
     {% if retired %}
         <div class="rln"><span>{{ retired.label }}</span><span class="mono d">{{ remaining.files|number_format(0, '.', ' ') }} files &middot; {{ remaining.bytes|storage_bytes }} &middot; <span class="chip">read-only</span></span></div>
-        <form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::RESUME')) }}">
+        {% if token %}<form class="staddrow" method="post" action="{{ path(constant('Uhifadhi\\Storage\\Controller\\StorageTargetController::RESUME')) }}">
             <input type="hidden" name="_token" value="{{ token }}">
             <span class="sp"></span>
             <button class="btn" type="submit">Move the {{ remaining.files|number_format(0, '.', ' ') }} after all</button>
-        </form>
+        </form>{% endif %}
     {% endif %}
     <div class="f-tfoot">Two places, and the page says so.</div>
 {% endmacro %}

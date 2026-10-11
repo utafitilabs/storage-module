@@ -189,6 +189,25 @@ final class FileDetailPageTest extends FilesTestCase
         self::assertSame([['fieldwork/rec-0001/a.jpg', 'Duplicate of the next frame']], $module->reasons, 'and it is handed the reason, for the record’s own trail');
     }
 
+    /**
+     * NOBODY REMOVES A FILE THEY MAY NOT OPEN. The removal asks what the
+     * file's page asks — the register, or the record it hangs off — and, like
+     * the page, answers not-found before anything else, so a removal is no way
+     * to learn that a file exists.
+     */
+    public function testSomebodyWhoMayNotOpenAFileCannotRemoveIt(): void
+    {
+        $client = $this->ranger(static::createClient());
+        $client->disableReboot();
+
+        $client->request('POST', '/files/f/fieldwork/rec-0004/c.heic/remove', ['_token' => 'not from any page']);
+
+        self::assertResponseStatusCodeSame(404);
+        /** @var StubFileSource $module */
+        $module = static::getContainer()->get('test_public.'.StubFileSource::class);
+        self::assertSame([], $module->removed);
+    }
+
     public function testARecordThatAsksForAReasonDoesNotGetAnEmptyOne(): void
     {
         $client = $this->clerk(static::createClient());

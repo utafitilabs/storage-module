@@ -604,6 +604,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('storage.target_service'),
                     service('router'),
                     service('security.csrf.token_manager'),
+                    service('security.authorization_checker'),
                 ])
                 ->public();
 

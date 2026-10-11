@@ -32,13 +32,13 @@ department confined to Kilimani.
 | storage_files_widgets_preset_apply | POST /files/widgets/presets/{new}/apply | `files.read` | sign-in | sign-in | refused | not found | refused | not found | not found | not found |
 | storage_files_widgets_preset_rename | POST /files/widgets/presets/{new}/rename | `files.read` | sign-in | sign-in | refused | not found | refused | not found | not found | not found |
 | storage_files_widgets_preset_delete | POST /files/widgets/presets/{new}/delete | `files.read` | sign-in | sign-in | refused | not found | refused | not found | not found | not found |
-| storage_files_remove | POST /files/f/fieldwork/rec-0004/c.heic/remove | — | sign-in | sign-in | → /files | → /files | → /files | → /files | → /files | → /files |
+| storage_files_remove | POST /files/f/fieldwork/rec-0004/c.heic/remove | — | sign-in | sign-in | not found | not found | → /files | not found | → /files | → /files |
 | storage_files_remove | POST /files/f/fieldwork/rec-0001/a.jpg/remove | — | sign-in | sign-in | → /files | → /files | → /files | → /files | → /files | → /files |
 | storage_upload | POST /files/upload | — | sign-in | sign-in | allowed | allowed | allowed | allowed | allowed | allowed |
 | storage_upload_remove | DELETE /files/stub/open/probe-photo.jpg | — | sign-in | sign-in | allowed | allowed | allowed | allowed | allowed | allowed |
-| storage_files_target_switch | POST /files/settings/target | `storage.configure` | sign-in | sign-in | refused | → /files/settings | refused | → /files/settings | → /files/settings | → /files/settings |
-| storage_files_target_move | POST /files/settings/target/move | `storage.configure` | sign-in | sign-in | refused | → /files/settings · error | refused | → /files/settings · error | → /files/settings · error | → /files/settings · error |
-| storage_files_target_leave | POST /files/settings/target/leave | `storage.configure` | sign-in | sign-in | refused | → /files/settings · error | refused | → /files/settings · error | → /files/settings · error | → /files/settings · error |
-| storage_files_target_pause | POST /files/settings/target/pause | `storage.configure` | sign-in | sign-in | refused | → /files/settings · error | refused | → /files/settings · error | → /files/settings · error | → /files/settings · error |
-| storage_files_target_resume | POST /files/settings/target/resume | `storage.configure` | sign-in | sign-in | refused | → /files/settings · error | refused | → /files/settings · error | → /files/settings · error | → /files/settings · error |
-| storage_files_target_clear | POST /files/settings/target/clear | `storage.configure` | sign-in | sign-in | refused | → /files/settings · error | refused | → /files/settings · error | → /files/settings · error | → /files/settings · error |
+| storage_files_target_switch | POST /files/settings/target | `storage.configure` | sign-in | sign-in | refused | refused | refused | refused | → /files/settings | → /files/settings |
+| storage_files_target_move | POST /files/settings/target/move | `storage.configure` | sign-in | sign-in | refused | refused | refused | refused | → /files/settings · error | → /files/settings · error |
+| storage_files_target_leave | POST /files/settings/target/leave | `storage.configure` | sign-in | sign-in | refused | refused | refused | refused | → /files/settings · error | → /files/settings · error |
+| storage_files_target_pause | POST /files/settings/target/pause | `storage.configure` | sign-in | sign-in | refused | refused | refused | refused | → /files/settings · error | → /files/settings · error |
+| storage_files_target_resume | POST /files/settings/target/resume | `storage.configure` | sign-in | sign-in | refused | refused | refused | refused | → /files/settings · error | → /files/settings · error |
+| storage_files_target_clear | POST /files/settings/target/clear | `storage.configure` | sign-in | sign-in | refused | refused | refused | refused | → /files/settings · error | → /files/settings · error |

@@ -51,7 +51,7 @@
         {# Private by CONSTRUCTION: there is no visibility setting and no
            public-URL setting to get wrong, because there is no public URL. #}
         <div class="use"><b>Nothing here is public.</b> Originals live outside the web root &middot; every module writes here, nothing chooses for itself.</div>
-        {{ tgt.state(state, current, retired, alternatives, move, remaining, canClear, rate, secondsLeft, targetToken) }}
+        {{ tgt.state(state, current, retired, alternatives, move, remaining, canClear, rate, secondsLeft, mayChangeTarget ? targetToken : null) }}
     </div>
 {% else %}
     <div class="c"><div class="rln"><span class="d">No storage is configured, so nothing can be written.</span></div></div>
