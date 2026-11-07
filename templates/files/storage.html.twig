@@ -6,11 +6,13 @@
    settings page is not where a daily question is answered.
 
    A TARGET WITH NO QUOTA TYPED DRAWS NO BAR rather than a full one: an
-   unmeasured share and a full one are different facts. #}
-{% extends '@UhifadhiStorage/base.html.twig' %}
-{% import '@UhifadhiStorage/files/_bits.html.twig' as bits %}
+   unmeasured share and a full one are different facts.
 
-{% block title %}Files &mdash; Storage{% endblock %}
+   A LIST TAB, SO NO STRIP: the section's figures are the Overview's. #}
+{% extends '@UhifadhiStorage/base.html.twig' %}
+{% import '@UhifadhiStorage/files/_table.html.twig' as tbl %}
+
+{% block title %}Files — Storage{% endblock %}
 
 {% block shell_breadcrumbs %}<a href="/">uhifadhi</a> / files / storage{% endblock %}
 
@@ -22,18 +24,24 @@
 {% endblock %}
 
 {% block storage_page %}
-    {{ bits.band(facts, path(constant('Uhifadhi\\Storage\\Controller\\FilesConfigureController::SETTINGS')), 'Files settings') }}
+    {% set here = constant('Uhifadhi\\Storage\\Controller\\FilesSectionController::STORAGE') %}
+    {% set base = filter|filter((v, k) => k not in ['role', 'page']) %}
+    {% set options = [{label: 'all', count: all|length, query: base, on: filter.role is not defined}] %}
+    {% for role, count in roles %}
+        {% set options = options|merge([{label: role, count: count, query: base|merge({role: role}), on: (filter.role ?? null) == role}]) %}
+    {% endfor %}
 
     <div class="c" style="margin-bottom:20px">
-        <span class="tab">Where the bytes are<span class="src">&middot; {{ rows|length }} {{ rows|length == 1 ? 'target' : 'targets' }} &middot; read-only here</span></span>
+        <span class="tab">Where the bytes are<span class="src">&middot; {{ all|length }} {{ all|length == 1 ? 'target' : 'targets' }} &middot; read-only here</span></span>
         <div class="sxlead">
             <span class="t">{{ ux_icon('storage:lock') }}<span><b>Originals live outside the website.</b> No address anybody can guess or share &middot; answered only after a permission check.</span></span>
             <span class="a"><a class="tgl" href="{{ path(constant('Uhifadhi\\Storage\\Controller\\FilesController::SETTINGS')) }}">Configure storage</a></span>
         </div>
+        {{ tbl.bar(here, filter, tbl.chip(here, 'target', 'Filter by target', options), 'Find a storage') }}
         <table class="tbl">
             <thead><tr><th>Target</th><th class="num">Files</th><th class="num">Used</th><th class="num">Bought</th><th>Filled</th><th class="num"></th></tr></thead>
             <tbody>
-            {% for row in rows %}
+            {% for row in table.rows %}
                 <tr>
                     <td><b>{{ row.place.label }}</b> <span class="chip{{ row.place.current ? ' ok' }}">{{ row.place.current ? 'default' : row.place.kind }}</span><div class="mono d" style="font-size:10.5px;margin-top:4px">{{ row.place.what }}{% if row.place.where %} &middot; {{ row.place.where }}{% endif %}</div></td>
                     <td class="num">{{ row.files|number_format }}</td>
@@ -45,10 +53,11 @@
                     <td class="num">{{ row.filled is null ? '&mdash;'|raw : row.filled ~ ' %' }}</td>
                 </tr>
             {% else %}
-                <tr><td colspan="6"><span class="mono d">No storage is configured, so nothing can be written.</span></td></tr>
+                <tr><td colspan="6"><span class="mono d">{{ all is empty ? 'No storage is configured, so nothing can be written.' : 'No storage matches these filters.' }}</span></td></tr>
             {% endfor %}
             </tbody>
         </table>
+        {{ tbl.foot(here, filter, table, 'storage', 'storages') }}
         <div class="sxfoot">
             <span>Switching the target asks whether to move what is already kept &middot; the answer decides</span>
             <span class="sp"></span>

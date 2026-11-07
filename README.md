@@ -31,7 +31,10 @@ On top of that machinery it ships one optional cross-module screen, the **Files
 hub** (`/files`), which is a dashboard on the widget machinery `ShellBundle`
 ships — which is why the core, `uhifadhi/uhifadhi`, is a hard requirement rather
 than a suggestion. The hub itself has no upload: a file arrives by being attached
-to a record, never by being put in a folder.
+to a record, never by being put in a folder. Its Overview carries the
+section's strip and figures; the Sources and Storage tabs are lists, each a
+house table under the filter bar and over the foot, narrowed and paged by
+query (`?state=`/`?role=`, `?q=`, `?size=20|50|100|all`, `?page=`).
 
 ## Installation
 

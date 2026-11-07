@@ -111,14 +111,13 @@ final class FilesSectionScreensTest extends FilesTestCase
         self::assertStringContainsString('unmeasured', $card->filter('.sub')->text());
     }
 
-    /** THE IDENTITY BAND IS FIVE FRAGMENTS, above the figures, on every reading tab. */
-    #[DataProvider('readingTabs')]
-    public function testEveryReadingTabCarriesTheIdentityBand(string $path): void
+    /** THE IDENTITY BAND IS FIVE FRAGMENTS, above the figures, on the Overview. */
+    public function testTheOverviewCarriesTheIdentityBand(): void
     {
-        $crawler = $this->open($path);
+        $crawler = $this->open('/files/overview');
 
-        self::assertCount(5, $crawler->filter('.factband .f'), $path.' states five facts');
-        self::assertCount(1, $crawler->filter('.factband .more'), $path.' ends the band with one door');
+        self::assertCount(5, $crawler->filter('.factband .f'), 'the overview states five facts');
+        self::assertCount(1, $crawler->filter('.factband .more'), 'the overview ends the band with one door');
     }
 
     /** THE ARRIVAL CHART DRAWS TWELVE PERIODS, and a period is a month. */
@@ -174,7 +173,7 @@ final class FilesSectionScreensTest extends FilesTestCase
         // NOTHING IS UPLOADED IN THE HUB, and the row saying so is drawn where
         // a reader is already counting what does arrive.
         self::assertStringContainsString('Uploaded in the hub', $text);
-        self::assertStringContainsString('by design', $text);
+        self::assertStringContainsString('on the record’s page', $text);
     }
 
     /** THE COUNTS ARE THE FILES THE MODULE ACTUALLY HANDED OVER. */

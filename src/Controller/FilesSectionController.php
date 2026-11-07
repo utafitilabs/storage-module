@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Uhifadhi\Storage\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +25,7 @@ use Uhifadhi\Storage\Service\FilesSectionOverview;
 use Uhifadhi\Storage\Service\SourcesBoard;
 use Uhifadhi\Storage\Service\StorageBoard;
 use Uhifadhi\Storage\Service\StorageSettings;
+use Uhifadhi\Storage\Service\TablePageService;
 use Uhifadhi\Storage\Shell\FilesSectionTabs;
 
 /**
@@ -65,6 +67,7 @@ final readonly class FilesSectionController
         private SourcesBoard $sources,
         private StorageBoard $storage,
         private StorageSettings $settings,
+        private TablePageService $pages,
         private TokenStorageInterface $tokens,
     ) {
     }
@@ -80,32 +83,47 @@ final readonly class FilesSectionController
 
     #[Route('/files/sources', name: self::SOURCES, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
     #[IsGranted(StorageConcerns::FILES_READ)]
-    public function sources(): Response
+    public function sources(Request $request): Response
     {
         $this->denyAnonymous();
+        $state = self::query($request, 'state');
+        $q = self::query($request, 'q');
 
         return $this->render('@UhifadhiStorage/files/sources.html.twig', [
-            'facts' => $this->sources->facts(),
-            'rows' => $this->sources->rows(),
-            'seam' => $this->sources->seam(),
+            'all' => $this->sources->rows(),
+            'table' => $this->pages->page($this->sources->listed($state, $q), self::query($request, 'size'), self::query($request, 'page')),
+            'filter' => array_filter(['state' => $state, 'q' => $q, 'size' => self::query($request, 'size')]),
+            'told' => $this->sources->told(),
         ]);
     }
 
     #[Route('/files/storage', name: self::STORAGE, defaults: FilesSectionTabs::MARKER, methods: ['GET'])]
     #[IsGranted(StorageConcerns::FILES_READ)]
     #[IsGranted(StorageConcerns::STORAGE_READ)]
-    public function storage(): Response
+    public function storage(Request $request): Response
     {
         $this->denyAnonymous();
+        $role = self::query($request, 'role');
+        $q = self::query($request, 'q');
 
         return $this->render('@UhifadhiStorage/files/storage.html.twig', [
-            'facts' => $this->storage->facts(),
-            'rows' => $this->storage->rows(),
+            'all' => $this->storage->rows(),
+            'roles' => $this->storage->roles(),
+            'table' => $this->pages->page($this->storage->listed($role, $q), self::query($request, 'size'), self::query($request, 'page')),
+            'filter' => array_filter(['role' => $role, 'q' => $q, 'size' => self::query($request, 'size')]),
             'warningPercent' => $this->storage->warningPercent(),
             'nearQuota' => $this->storage->isNearQuota(),
             'maxBytes' => $this->settings->maxBytes(),
             'thumbnailLongEdge' => $this->settings->thumbnailLongEdge(),
         ]);
+    }
+
+    /** One query value as typed, or null where it is absent or blank. */
+    private static function query(Request $request, string $key): ?string
+    {
+        $value = $request->query->get($key);
+
+        return \is_string($value) && '' !== trim($value) ? trim($value) : null;
     }
 
     /**

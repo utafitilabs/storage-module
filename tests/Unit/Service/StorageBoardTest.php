@@ -44,29 +44,13 @@ final class StorageBoardTest extends TestCase
         self::assertNull($row['filled'], 'no quota typed is no measurement, never a nought');
     }
 
-    public function testTheBandSaysSoRatherThanPrintingANought(): void
-    {
-        $facts = self::board(null)->facts();
-
-        self::assertSame('Bought', $facts[2]->label);
-        self::assertSame('—', $facts[2]->value);
-        self::assertSame('Left', $facts[3]->label);
-        self::assertSame('—', $facts[3]->value);
-        self::assertSame('unmeasured without a quota', $facts[3]->qualifier);
-    }
-
-    public function testATargetWithAQuotaReportsItsShareAndWhatIsLeft(): void
+    public function testATargetWithAQuotaReportsItsShare(): void
     {
         // 4 MB held against 10 MB bought.
         $row = self::board(10_000_000)->rows()[0];
 
         self::assertSame(10_000_000, $row['quotaBytes']);
         self::assertSame(40.0, $row['filled']);
-
-        $facts = self::board(10_000_000)->facts();
-        self::assertSame('10.0 MB', $facts[2]->value);
-        self::assertSame('6.0 MB', $facts[3]->value);
-        self::assertSame('60.0 %', $facts[3]->qualifier);
     }
 
     /** THE WARNING IS A THRESHOLD, and a target under it is not warned about. */

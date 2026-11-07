@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Uhifadhi\Storage\Service;
 
-use Uhifadhi\Storage\Model\Bytes;
-use Uhifadhi\Storage\Model\SectionFact;
 use Uhifadhi\Storage\Model\StoragePlace;
 use Uhifadhi\Storage\Registry\FileRegistry;
 
@@ -81,42 +79,41 @@ final readonly class StorageBoard
     }
 
     /**
-     * The identity band: what this tab IS, as fragments.
+     * The targets a reader narrowed to: one role — `default` for the place
+     * new files go, otherwise the place's kind — and a label that contains
+     * what they typed.
      *
-     * @return list<SectionFact>
+     * @return list<array{place: StoragePlace, files: int, bytes: int, quotaBytes: int|null, filled: float|null}>
      */
-    public function facts(): array
+    public function listed(?string $role, ?string $query): array
     {
-        $rows = $this->rows();
-        $counts = $this->registry->counts();
+        $query = trim((string) $query);
 
-        $bought = null;
-        foreach ($rows as $row) {
-            if (null !== $row['quotaBytes']) {
-                $bought = ($bought ?? 0) + $row['quotaBytes'];
-            }
-        }
-        // LEFT AND ITS SHARE ARE ONE FACT OR NEITHER: both are read off what
-        // was bought, so a target with no quota typed has no answer to either
-        // rather than a nought for one of them.
-        $left = null;
-        $share = null;
-        if (null !== $bought) {
-            $left = max(0, $bought - $counts['bytes']);
-            $share = $left / $bought * 100;
+        return array_values(array_filter($this->rows(), static fn (array $row): bool => (null === $role || '' === $role || $role === self::role($row['place']))
+            && ('' === $query || false !== mb_stripos($row['place']->label, $query))));
+    }
+
+    /**
+     * Every role the configured places have, with how many places have it,
+     * in the order the places are listed.
+     *
+     * @return array<string, int>
+     */
+    public function roles(): array
+    {
+        $roles = [];
+        foreach ($this->rows() as $row) {
+            $role = self::role($row['place']);
+            $roles[$role] = ($roles[$role] ?? 0) + 1;
         }
 
-        return [
-            new SectionFact('Storages', (string) \count($rows), self::kinds($rows)),
-            new SectionFact('Used', Bytes::human($counts['bytes']), 'across every module'),
-            new SectionFact('Bought', null === $bought ? '—' : Bytes::human($bought), null === $bought ? 'nobody typed a quota' : 'typed on the target'),
-            new SectionFact(
-                'Left',
-                null === $left ? '—' : Bytes::human($left),
-                null === $share ? 'unmeasured without a quota' : \sprintf('%s %%', number_format($share, 1)),
-            ),
-            new SectionFact('Files', number_format($counts['files']), 'every one of them outside the web root'),
-        ];
+        return $roles;
+    }
+
+    /** What the target chip calls a place: the default, or its kind. */
+    public static function role(StoragePlace $place): string
+    {
+        return $place->current ? 'default' : $place->kind;
     }
 
     /** At what share of what was bought a warning is raised. */
@@ -135,18 +132,5 @@ final readonly class StorageBoard
         }
 
         return false;
-    }
-
-    /**
-     * @param list<array{place: StoragePlace, files: int, bytes: int, quotaBytes: int|null, filled: float|null}> $rows
-     */
-    private static function kinds(array $rows): string
-    {
-        $kinds = [];
-        foreach ($rows as $row) {
-            $kinds[] = $row['place']->isObjectStorage() ? 'object storage' : 'this server';
-        }
-
-        return [] === $kinds ? 'none configured' : implode(' · ', array_unique($kinds));
     }
 }

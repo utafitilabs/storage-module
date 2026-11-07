@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Uhifadhi\Storage\Service;
 
 use Uhifadhi\Bundle\RegistryBundle\Service\ModuleCatalogue;
-use Uhifadhi\Storage\Model\SectionFact;
 use Uhifadhi\Storage\Registry\FileRegistry;
 
 /**
@@ -42,7 +41,7 @@ final readonly class SourcesBoard
     public const string STATE_LIVE = 'live';
 
     /** The state of an installed module that declares none. */
-    public const string STATE_SILENT = 'declares none';
+    public const string STATE_SILENT = 'none';
 
     public function __construct(
         private FileRegistry $registry,
@@ -103,36 +102,33 @@ final readonly class SourcesBoard
     }
 
     /**
-     * The identity band: what this tab IS, as fragments.
+     * The rows a reader narrowed to: one state, and a name or slug that
+     * contains what they typed, in the order {@see rows()} sorts them.
      *
-     * @return list<SectionFact>
+     * @return list<array{slug: string, label: string, fileWord: string|null, files: int, bytes: int, records: int, state: string}>
      */
-    public function facts(): array
+    public function listed(?string $state, ?string $query): array
     {
-        $rows = $this->rows();
-        $declaring = array_values(array_filter($rows, static fn (array $row): bool => self::STATE_LIVE === $row['state']));
-        $silent = \count($rows) - \count($declaring);
+        $query = trim((string) $query);
 
-        $files = 0;
-        $records = 0;
-        foreach ($declaring as $row) {
-            $files += $row['files'];
-            $records += $row['records'];
-        }
+        return array_values(array_filter($this->rows(), static fn (array $row): bool => (null === $state || '' === $state || $state === $row['state'])
+            && ('' === $query || false !== mb_stripos($row['label'].' '.$row['slug'], $query))));
+    }
 
-        $silentNames = array_map(
-            static fn (array $row): string => $row['label'],
-            array_values(array_filter($rows, static fn (array $row): bool => self::STATE_SILENT === $row['state'])),
-        );
-
+    /**
+     * WHAT A MODULE TELLS THIS HUB, in words: the four things the hub reads
+     * from a module before it can list that module's files, each with whether
+     * it is told today.
+     *
+     * @return list<array{label: string, told: bool, note: string}>
+     */
+    public function told(): array
+    {
         return [
-            new SectionFact('Sources', (string) \count($declaring), \sprintf('of %d modules installed', \count($rows))),
-            new SectionFact('Files', number_format($files), 'all from those sources'),
-            new SectionFact('Records with a file', number_format($records), 'across every module'),
-            // NO IMPORT PATH EXISTS AND NONE IS PLANNED. The row is drawn with
-            // a nought because it is the one place a future one would appear.
-            new SectionFact('Imports', '0', 'no import path exists'),
-            new SectionFact('Modules storing nothing', (string) $silent, [] === $silentNames ? 'none' : implode(' · ', $silentNames)),
+            ['label' => 'That it stores files', 'told' => true, 'note' => 'told by the module itself'],
+            ['label' => 'Its word for one', 'told' => true, 'note' => 'told — the word every screen uses'],
+            ['label' => 'Whether a file may be removed', 'told' => true, 'note' => 'already answered, per record'],
+            ['label' => 'Which record a file belongs to', 'told' => true, 'note' => 'already stored, on the file'],
         ];
     }
 

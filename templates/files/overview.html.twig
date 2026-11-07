@@ -11,7 +11,7 @@
 {% extends '@UhifadhiStorage/base.html.twig' %}
 {% import '@UhifadhiStorage/files/_bits.html.twig' as bits %}
 
-{% block title %}Files &mdash; Overview{% endblock %}
+{% block title %}Files — Overview{% endblock %}
 
 {% block shell_breadcrumbs %}<a href="/">uhifadhi</a> / files / overview{% endblock %}
 
@@ -60,12 +60,10 @@
                 {% for line in series %}
                     <span><i class="sxdot" style="background:var({{ loop.first ? '--acc' : '--cat-' ~ loop.index0 }})"></i>{{ line.label }}</span>
                 {% else %}
-                    <span>No module declares a file store yet.</span>
+                    <span>No module stores files yet.</span>
                 {% endfor %}
             </div>
-            {# An absent series is a module that declares no file store, not a
-             module with no files, and the two must never look the same. #}
-            <p class="use" style="margin-bottom:0">{{ periods|last.label|capitalize }} in progress &middot; an absent series is a module that declares no file store.</p>
+            <p class="use" style="margin-bottom:0">{{ periods|last.label|capitalize }} in progress &middot; a module that stores no files draws no bar.</p>
             <div class="sxmore"><span>{{ periodTotal|number_format }} of {{ total|number_format }} &middot; the rest is older than {{ periods|length }} periods</span><span class="sp"></span><a href="{{ path(constant('Uhifadhi\\Storage\\Controller\\FilesController::REGISTER')) }}">The register &rarr;</a></div>
         </div>
 
