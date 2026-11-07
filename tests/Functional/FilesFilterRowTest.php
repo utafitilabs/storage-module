@@ -29,14 +29,17 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 final class FilesFilterRowTest extends FilesTestCase
 {
-    public function testTheRowCarriesFourDropdownChipsWithTheirClosedLabels(): void
+    public function testTheRowIsTheHouseBarOfSixChipsEachWithItsCount(): void
     {
         $row = $this->row();
 
+        self::assertSame('form', $row->nodeName());
+        self::assertStringContainsString('lfilt', (string) $row->attr('class'));
         self::assertSame(
-            ['Every module', 'Every area', 'Any day', 'Anywhere'],
-            $row->filter('.i-dd [data-dd-trigger] > span:not(.i-ddcaret)')->each(static fn (Crawler $n): string => trim($n->text())),
+            ['Every module · 5', 'Every area · 5', 'Anything · 5', 'Either way · 5', 'Any day · 5', 'Anywhere · 5'],
+            $row->filter('details.i-dd > summary .i-ddval')->each(static fn (Crawler $n): string => trim($n->text())),
         );
+        self::assertCount(0, $row->filter('.f-fchip, .lbl, .f-count, .f-search, .sep'), 'no sibling of the house bar is left');
     }
 
     /**
@@ -56,8 +59,8 @@ final class FilesFilterRowTest extends FilesTestCase
     {
         $row = $this->row();
 
-        self::assertCount(4, $row->filter('details.i-dd'));
-        self::assertCount(4, $row->filter('details.i-dd > summary.mchip.i-ddt'));
+        self::assertCount(6, $row->filter('details.i-dd'));
+        self::assertCount(6, $row->filter('details.i-dd > summary.mchip.i-ddt'));
         self::assertCount(0, $row->filter('.i-dd[data-dd]'), 'no panel is toggled by a class any more');
         self::assertStringNotContainsString(
             'files-filters',
@@ -81,23 +84,46 @@ final class FilesFilterRowTest extends FilesTestCase
         );
     }
 
-    public function testTheTwoFixedSetsStayAsPills(): void
+    /** What a file is and whether it has a thumbnail are chips too, counted like every other. */
+    public function testWhatAndThumbnailAreChipsWithCounts(): void
     {
         $row = $this->row();
+        $what = $row->filter('details.i-dd')->eq(2);
+        $thumb = $row->filter('details.i-dd')->eq(3);
 
+        self::assertSame('what', trim($what->filter('.i-ddhead')->text()));
         self::assertSame(
-            ['What', 'Thumbnail'],
-            $row->filter('.lbl')->each(static fn (Crawler $n): string => trim($n->text())),
+            ['Anything', 'Photos', 'Documents', 'Tracks'],
+            $what->filter('[data-dd-opt] .i-ddopt-l')->each(static fn (Crawler $n): string => trim($n->text())),
         );
         self::assertSame(
-            ['Anything', 'Photos', 'Documents', 'Tracks', 'Either way', 'Has one', 'Has none'],
-            $row->filter('.f-fchip')->each(static fn (Crawler $n): string => trim($n->text())),
+            ['5', '3', '1', '1'],
+            $what->filter('[data-dd-opt] .i-ddopt-n')->each(static fn (Crawler $n): string => trim($n->text())),
         );
+        self::assertSame('thumbnail', trim($thumb->filter('.i-ddhead')->text()));
+        self::assertSame(
+            ['Either way', 'Has one', 'Has none'],
+            $thumb->filter('[data-dd-opt] .i-ddopt-l')->each(static fn (Crawler $n): string => trim($n->text())),
+        );
+        self::assertSame(
+            ['5', '1', '4'],
+            $thumb->filter('[data-dd-opt] .i-ddopt-n')->each(static fn (Crawler $n): string => trim($n->text())),
+        );
+    }
+
+    /** A chip that narrows reads `on`, and names the choice and what it leaves. */
+    public function testAChosenChipReadsOnWithItsCount(): void
+    {
+        $row = $this->row('/files?kind=document');
+
+        self::assertSame('Documents · 1', trim($row->filter('details.i-dd')->eq(2)->filter('summary .i-ddval')->text()));
+        self::assertStringContainsString('on', (string) $row->filter('details.i-dd')->eq(2)->filter('summary')->attr('class'));
+        self::assertStringNotContainsString(' on', (string) $row->filter('details.i-dd')->eq(0)->filter('summary')->attr('class'));
     }
 
     public function testEveryOptionIsAnOrdinaryLinkCarryingTheMergedQuery(): void
     {
-        $options = $this->row()->filter('[data-dd-opt], .f-fchip, .f-shape a');
+        $options = $this->row()->filter('[data-dd-opt], .f-shape a');
 
         self::assertGreaterThan(10, $options->count());
         self::assertSame(
@@ -118,8 +144,8 @@ final class FilesFilterRowTest extends FilesTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(2, $crawler->filter('[data-f-shapewrap] .f-grid .f-tile'));
-        self::assertSame('2 of 5', $this->countText($crawler));
-        self::assertSame('South Block', trim($crawler->filter('.i-dd [data-dd-trigger] > span:not(.i-ddcaret)')->eq(1)->text()));
+        self::assertStringStartsWith('2 files', $this->countText($crawler));
+        self::assertSame('South Block · 2', trim($crawler->filter('.i-dd [data-dd-trigger] > .i-ddval')->eq(1)->text()));
     }
 
     public function testAModuleOptionFiltersTheGridAndTheCountToThatModule(): void
@@ -130,11 +156,11 @@ final class FilesFilterRowTest extends FilesTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(2, $crawler->filter('[data-f-shapewrap] .f-grid .f-tile'));
-        self::assertSame('2 of 5', $this->countText($crawler));
-        self::assertSame('Fieldwork', trim($crawler->filter('.i-dd [data-dd-trigger] > span:not(.i-ddcaret)')->eq(0)->text()));
+        self::assertStringStartsWith('2 files', $this->countText($crawler));
+        self::assertSame('Fieldwork · 2', trim($crawler->filter('.i-dd [data-dd-trigger] > .i-ddval')->eq(0)->text()));
         self::assertSame(
-            'South Block',
-            trim($crawler->filter('.i-dd [data-dd-trigger] > span:not(.i-ddcaret)')->eq(1)->text()),
+            'South Block · 2',
+            trim($crawler->filter('.i-dd [data-dd-trigger] > .i-ddval')->eq(1)->text()),
             'choosing a module keeps every other choice',
         );
     }
@@ -153,7 +179,7 @@ final class FilesFilterRowTest extends FilesTestCase
     public function testWhereTheBytesAreIsTheStoragesTheInstallationConfigured(): void
     {
         $client = $this->client();
-        $panel = $client->request('GET', '/files')->filter('[data-f-filters] .i-dd')->eq(3);
+        $panel = $client->request('GET', '/files')->filter('[data-f-filters] .i-dd')->eq(5);
 
         self::assertSame('where the bytes are', trim($panel->filter('.i-ddhead')->text()));
         self::assertSame(
@@ -175,7 +201,7 @@ final class FilesFilterRowTest extends FilesTestCase
         self::assertCount(2, $client->request('GET', '/files?q=REC-0001')->filter('[data-f-shapewrap] .f-grid .f-tile'));
         self::assertSame(
             'REC-0001',
-            $client->getCrawler()->filter('.f-search input')->attr('value'),
+            $client->getCrawler()->filter('.lsearch input')->attr('value'),
             'the box says what was searched for',
         );
     }
@@ -243,7 +269,7 @@ final class FilesFilterRowTest extends FilesTestCase
 
     private function countText(Crawler $crawler): string
     {
-        return preg_replace('/\s+/u', ' ', trim($crawler->filter('[data-f-count]')->text())) ?? '';
+        return preg_replace('/\s+/u', ' ', trim($crawler->filter('[data-w="browse"] > .rdf-foot > span')->first()->text())) ?? '';
     }
 
     private function option(Crawler $crawler, string $filter, string $value): \Symfony\Component\DomCrawler\Link

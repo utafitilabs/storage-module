@@ -127,44 +127,12 @@
 .f-list .nm{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:11px;color:var(--tx)}
 .f-list .num{text-align:right;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:11px}
 
-/* ── THE FILTER BAR ───────────────────────────────────────────────────────
-   ONE row of controls driving the whole surface — two dropdown chips, the two
-   fixed pill runs, two more dropdown chips, a search field and the shape
-   toggle, with the result count on the right. Every chip is a query parameter
-   and nothing more.
-   → GET /files?module=&area=&kind=&day=&backend=&thumb=&q=&view= */
-.f-filters{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 13px;margin:0 0 14px;
-  border:1px solid var(--ln);border-radius:11px;background:color-mix(in srgb,var(--fog) 5%,transparent)}
-.f-filters .lbl{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:8.5px;font-weight:700;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-right:-3px}
-.f-filters .sep{width:1px;height:16px;background:var(--ln2);margin:0 3px}
-
-/* THE FILTER DROPDOWNS ARE THE SHELL'S `.i-dd`, chrome and behaviour both —
-   the same grouped chip, the same panel and the same counts the rest of the
-   product filters with, opened by the browser because the control is a
-   `<details>`. This sheet carried the whole family itself while the shell
-   shipped none of it; now that the shell does, the copy is deleted rather than
-   kept in two places, where the later sheet would win by load order and drift
-   every other filter bar. The option's hue mark is the shell's `.i-dot` too,
-   and the hub gives it no colour to override: a file's colour is its picture.  */
-
-/* THE TWO FIXED PILL RUNS — what a file is, and whether it has a small picture.
-   Three or four values each, clicked constantly, so they stay open where the
-   four unbounded ones collapsed into dropdowns. They are LINKS rather than the
-   design's buttons, which is the only reason text-decoration appears here. */
-.f-fchip{display:inline-flex;align-items:center;gap:6px;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
-  font-size:10px;font-weight:600;color:var(--fog);background:none;border:1px solid var(--ln2);
-  border-radius:7px;padding:4px 9px 3px;cursor:pointer;line-height:1.3;text-decoration:none}
-.f-fchip:hover{color:var(--tx);border-color:var(--fog);text-decoration:none}
-.f-fchip.on{color:var(--accT);background:var(--acc);border-color:var(--acc)}
-/* PORTED: keyed by module slug, like the owner tag's dot above. */
-.f-fchip i{width:6px;height:6px;border-radius:2px;flex:none;font-style:normal}
-.f-fchip.on i{background:var(--accT)}
-.f-search{display:inline-flex;align-items:center;gap:7px;background:var(--raised);border:1px solid var(--ln2);
-  border-radius:8px;padding:4px 10px}
-.f-search svg{width:13px;height:13px;color:var(--fog);flex:none}
-.f-search input{border:0;background:none;font-family:inherit;font-size:11.5px;color:var(--tx);width:190px;outline:none}
-.f-search input::placeholder{color:var(--dim)}
+/* ── THE FILTER BAR IS THE SHELL'S `.lfilt` ───────────────────────────────
+   Its chips (`.i-dd`, with the option's `.i-dot`), its search (`.lsearch`) and
+   the register foot under the result set are all the shell's, so the hub
+   filters exactly as every other register does. Only the shape toggle at the
+   bar's right end is this surface's own.
+   → GET /files?module=&area=&kind=&day=&backend=&thumb=&q=&view=&page=&per= */
 /* The shape toggle is TWO LINKS, not two buttons: which shape is showing rides
    in the same query as the chips, so a list survives pressing one. The design's
    values, on the element actually emitted. */
@@ -175,8 +143,6 @@
 .f-shape a+a{border-left:1px solid var(--ln2)}
 .f-shape a svg{width:14px;height:14px;display:block}
 .f-shape a.on{background:var(--acc);color:var(--accT)}
-.f-count{margin-left:auto;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:10px;color:var(--dim)}
-.f-count b{color:var(--tx)}
 /* Nothing matched. A filter that finds nothing must say which filter to undo. */
 .f-empty{border:1px dashed var(--ln2);border-radius:12px;padding:30px 20px;text-align:center;color:var(--fog);
   font-size:12.5px}

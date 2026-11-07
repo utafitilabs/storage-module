@@ -47,6 +47,12 @@ final class StubFileSource implements FileSourceInterface, FileRemovalInterface
     /** @var list<array{string, string|null}> the reason given with each removal */
     public array $reasons = [];
 
+    /**
+     * How many more photographs REC-0099 holds on top of the five — a hub
+     * long enough to need a second page. A test that sets it puts it back.
+     */
+    public static int $roll = 0;
+
     public function moduleSlug(): string
     {
         return self::SLUG;
@@ -79,7 +85,25 @@ final class StubFileSource implements FileSourceInterface, FileRemovalInterface
     {
         $day = new \DateTimeImmutable('2026-08-21 06:14:00');
 
-        return [
+        $roll = [];
+        for ($i = 1; $i <= self::$roll; ++$i) {
+            $roll[] = new FileEntry(
+                \sprintf('%s/rec-0099/roll-%02d.jpg', self::SLUG, $i),
+                \sprintf('ROLL_%02d.jpg', $i),
+                'image/jpeg',
+                1_000_000,
+                'REC-0099',
+                '/records/rec-0099',
+                self::SLUG,
+                'Fieldwork',
+                'north-block',
+                'North Block',
+                $day->modify('-20 days'),
+                $day->modify('-20 days +1 hour'),
+            );
+        }
+
+        return [...$roll, ...[
             new FileEntry(
                 self::SLUG.'/rec-0001/a.jpg',
                 'IMG_1204.jpg',
@@ -156,7 +180,7 @@ final class StubFileSource implements FileSourceInterface, FileRemovalInterface
                 null,
                 ThumbStateEnum::Failed,
             ),
-        ];
+        ]];
     }
 
     public function guard(string $key, ?UserInterface $user): FileGuard

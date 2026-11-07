@@ -623,6 +623,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('storage.target_board'),
                     service('security.authorization_checker'),
                     service('storage.evidence_access_decider'),
+                    service('shell.table_page'),
                 ])
                 ->public();
         }

@@ -102,14 +102,13 @@ final readonly class FilesSurface
     /**
      * THE FILTER ROW, AS DATA.
      *
-     * Four dropdowns and two pill sets, each a list of options that are this
-     * filter with ONE key replaced — so the row draws as plain links and one GET
-     * moves the grid, the list and the count together.
+     * Six chips, each a list of options that are this filter with ONE key
+     * replaced — so the row draws as plain links and one GET moves the grid,
+     * the list and the count together.
      *
-     * A DROPDOWN'S COUNTS RESPECT EVERY OTHER CHIP. Each option is counted by
+     * A CHIP'S COUNTS RESPECT EVERY OTHER CHIP. Each option is counted by
      * running the whole filter with that one key replaced, which is the only way
-     * a panel can promise a number the grid will actually show. The pills carry
-     * no count because the design draws none on them.
+     * a panel can promise a number the grid will actually show.
      *
      * @param array<string, string> $placeByModule
      *
@@ -158,7 +157,7 @@ final readonly class FilesSurface
                 array_map(static fn (FileKindEnum $k): array => [$k->value, $k->pill()], FileKindEnum::cases()),
                 static fn (FileFilter $f, ?string $v): FileFilter => $f->withKind(null === $v ? null : FileKindEnum::from($v)),
                 $filter->kind?->value,
-                null,
+                $counted,
             ),
             'thumb' => self::options(
                 $filter,
@@ -166,7 +165,7 @@ final readonly class FilesSurface
                 [[FileFilter::THUMB_MADE, 'Has one'], [FileFilter::THUMB_MISSING, 'Has none']],
                 static fn (FileFilter $f, ?string $v): FileFilter => $f->withThumb($v),
                 $filter->thumb,
-                null,
+                $counted,
             ),
         ];
     }
@@ -177,16 +176,16 @@ final readonly class FilesSurface
      *
      * @param list<array{string, string}>               $values
      * @param callable(FileFilter, ?string): FileFilter $choose
-     * @param callable(FileFilter): int|null            $count  null for a run the design draws without counts
+     * @param callable(FileFilter): int                 $count
      *
      * @return list<FileFacet>
      */
-    private static function options(FileFilter $filter, string $anyLabel, array $values, callable $choose, ?string $current, ?callable $count): array
+    private static function options(FileFilter $filter, string $anyLabel, array $values, callable $choose, ?string $current, callable $count): array
     {
         $facet = static function (string $value, string $label) use ($filter, $choose, $current, $count): FileFacet {
             $chosen = $choose($filter, '' === $value ? null : $value);
 
-            return new FileFacet($value, $label, $current === ('' === $value ? null : $value), $chosen->toQuery(), null !== $count ? $count($chosen) : null);
+            return new FileFacet($value, $label, $current === ('' === $value ? null : $value), $chosen->toQuery(), $count($chosen));
         };
 
         $options = [$facet('', $anyLabel)];

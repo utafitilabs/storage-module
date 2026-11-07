@@ -1,60 +1,49 @@
 {# THE FILTER ROW — one convention, one copy (FL·01).
 
-   STATIC TWIN of the `.f-filters` row in files.widgets.js's `browse` entry.
+   STATIC TWIN of the `.lfilt` row in files.widgets.js's `browse` entry.
    Any widget that draws filters INCLUDES THIS FILE; none of them types a second
    row, because two rows drift into two different filter bars.
 
-   ANYTHING A DEPLOYMENT CAN DEFINE IS A DROPDOWN. Modules, areas, days and
-   storages all grow without bound, so each is one `.i-dd` chip carrying its own
-   counts — and a panel's counts respect every OTHER chip, so it never promises
-   files another choice has already excluded. Only the two fixed sets a person
-   clicks constantly stay open as `.f-fchip` pills, and the design draws those
-   without counts.
+   THE HOUSE BAR. Every axis — module, area, what it is, whether it has a
+   thumbnail, the day it was taken, where the bytes are — is one chip naming
+   the chosen option and its count, and a panel's counts respect every OTHER
+   chip, so it never promises files another choice has already excluded.
 
-   EVERY OPTION IS AN ORDINARY LINK. Unlike the design's visual mock, which
-   filtered the grid client-side, each option is this hub's query with ONE key
-   replaced, so one GET drives the grid, the list and the count together and a
-   narrowed hub is a URL somebody can send.
+   EVERY OPTION IS AN ORDINARY LINK: this hub's query with ONE key replaced,
+   so one GET drives the grid, the list and the foot together and a narrowed
+   hub is a URL somebody can send.
 
    AND NOTHING HERE IS SCRIPTED. A chip is the shell's `<details class="i-dd">`
    with the chip as its `<summary>`: the browser opens it, an option is a link,
-   so the row filters on a page whose JavaScript never arrived. This module once
-   toggled an `.open` class from a controller of its own and carried the whole
-   `.i-dd*` family in its sheet to hide the panel until then — the shell ships
-   both now, and a second copy of either would win by load order and drift every
-   other filter bar in the product.
+   so the row filters on a page whose JavaScript never arrived. The `.i-dd*`
+   family is the shell's; a second copy here would win by load order and
+   drift every other filter bar in the product.
 
    The search box is the form itself: the current choices ride along as hidden
-   fields, so pressing Enter on a query never drops the chips.
+   fields, so pressing Enter on a query never drops the chips. The shape
+   toggle sits after it, at the right end.
 
    → GET /files?module=&area=&kind=&day=&backend=&thumb=&q=&view= #}
 
+{# options: list of FileFacet — the first lets the axis go #}
 {% macro dropdown(head, aria, key, options) %}
     {%- set picked = options|filter(o => o.on)|first|default(options|first) -%}
     <details class="i-dd">
-        <summary class="mchip i-ddt" data-dd-trigger><span>{{ picked.label }}</span><span class="i-ddcaret">&#9662;</span></summary>
-        <div class="i-ddmenu" data-dd-menu role="listbox" aria-label="{{ aria }}">
+        <summary class="mchip i-ddt{{ picked is not same as(options|first) ? ' on' }}" data-dd-trigger><span class="i-ddval">{{ picked.label }} &middot; {{ picked.count }}</span><span class="i-ddcaret">&#9662;</span></summary>
+        <div class="i-ddmenu" data-dd-menu aria-label="{{ aria }}">
             <span class="i-ddhead">{{ head }}</span>
             {%- for option in options -%}
                 {%- if loop.index == 2 %}<span class="i-ddsep"></span>{% endif -%}
-                <a class="i-ddopt{{ option.on ? ' on' }}" role="option" aria-selected="{{ option.on ? 'true' : 'false' }}"
-                   data-dd-opt data-dd-label="{{ option.label }}" data-f-filter="{{ key }}" data-f-value="{{ option.value }}"
-                   href="{{ path('storage_files', option.query) }}"><span class="i-dot"></span><span class="i-ddopt-l">{{ option.label }}</span><span class="i-ddopt-n">{{ option.count }}</span></a>
+                <a class="i-ddopt{{ option.on ? ' on' }}"{% if option.on %} aria-current="true"{% endif %}
+                   data-dd-opt data-f-filter="{{ key }}" data-f-value="{{ option.value }}"
+                   href="{{ path('storage_files', option.query) }}"><span class="i-ddopt-l">{{ option.label }}</span><span class="i-ddopt-n">{{ option.count }}</span></a>
             {%- endfor -%}
         </div>
     </details>
 {% endmacro %}
 
-{% macro pills(label, key, options) %}
-    <span class="lbl">{{ label }}</span>
-    {%- for option in options -%}
-        <a class="f-fchip{{ option.on ? ' on' }}" data-f-filter="{{ key }}" data-f-value="{{ option.value }}"
-           href="{{ path('storage_files', option.query) }}">{{ option.label }}</a>
-    {%- endfor -%}
-{% endmacro %}
-
 {% import _self as row %}
-<form class="f-filters" data-f-filters method="get" action="{{ path('storage_files') }}">
+<form class="lfilt" data-f-filters method="get" action="{{ path('storage_files') }}">
     {#- Every choice already made, so the search box carries them rather than
         clearing them. The shape rides along too: a list is still a list after a
         search. -#}
@@ -64,21 +53,16 @@
 
     {{ row.dropdown('module', 'Filter by module', 'module', facets.module) }}
     {{ row.dropdown('area', 'Filter by area', 'area', facets.area) }}
-    <span class="sep"></span>
-    {{ row.pills('What', 'kind', facets.kind) }}
-    <span class="sep"></span>
-    {{ row.pills('Thumbnail', 'thumb', facets.thumb) }}
-    <span class="sep"></span>
+    {{ row.dropdown('what', 'Filter by what it is', 'kind', facets.kind) }}
+    {{ row.dropdown('thumbnail', 'Filter by whether it has a thumbnail', 'thumb', facets.thumb) }}
     {{ row.dropdown('taken', 'Filter by the day it was taken', 'day', facets.day) }}
     {{ row.dropdown('where the bytes are', 'Filter by storage', 'backend', facets.backend) }}
-    <span class="sep"></span>
     {#- The search runs over the FILE NAME and the OWNING RECORD's reference,
         because those are the two things a person actually remembers. It does not
         search captions; a caption is the record's, not the file's. -#}
-    <span class="f-search">{{ ux_icon('shell:search') }}<input type="search" name="q" placeholder="A file name, or a record" aria-label="Search files" value="{{ filter.q }}" autocomplete="off" data-f-search></span>
+    <span class="lsearch">{{ ux_icon('shell:search', {width: 14, height: 14, 'aria-hidden': 'true'}) }}<input class="fld" type="search" name="q" placeholder="A file name, or a record" aria-label="Search files" value="{{ filter.q }}" autocomplete="off"></span>
     <span class="f-shape" role="group" aria-label="Grid or list">
         <a{{ filter.view == 'grid' ? ' class="on"'|raw }} data-f-shape="grid" title="Thumbnails" aria-label="Thumbnails" href="{{ path('storage_files', filter.withView('grid').toQuery) }}">{{ ux_icon('shell:layout-grid') }}</a>
         <a{{ filter.view == 'list' ? ' class="on"'|raw }} data-f-shape="list" title="A list" aria-label="A list" href="{{ path('storage_files', filter.withView('list').toQuery) }}">{{ ux_icon('storage:list') }}</a>
     </span>
-    <span class="f-count" data-f-count><b>{{ files|length }}</b> of {{ total|number_format(0, '.', ' ') }}</span>
 </form>

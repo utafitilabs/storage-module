@@ -28,12 +28,15 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 use Twig\Environment;
+use Uhifadhi\Bundle\ShellBundle\Model\TablePage;
+use Uhifadhi\Bundle\ShellBundle\Service\TablePageService;
 use Uhifadhi\Bundle\ShellBundle\Widget\Model\WidgetDom;
 use Uhifadhi\Bundle\ShellBundle\Widget\Service\WidgetEndpoint;
 use Uhifadhi\Bundle\ShellBundle\Widget\Service\WidgetService;
 use Uhifadhi\Contracts\Access\WholeOrganization;
 use Uhifadhi\Contracts\Entity\UserInterface as Person;
 use Uhifadhi\Storage\Access\StorageConcerns;
+use Uhifadhi\Storage\Model\FileEntry;
 use Uhifadhi\Storage\Model\FileFilter;
 use Uhifadhi\Storage\Registry\FileRegistry;
 use Uhifadhi\Storage\Removal\FileRemovalInterface;
@@ -110,6 +113,7 @@ final class FilesController
         private readonly TargetBoard $targetBoard,
         private readonly AuthorizationCheckerInterface $authorization,
         private readonly EvidenceAccessDecider $evidence,
+        private readonly TablePageService $pages,
     ) {
     }
 
@@ -126,8 +130,11 @@ final class FilesController
         $catalog = new FilesWidgets()->catalog();
         $filter = FileFilter::fromQuery($request->query->all());
 
+        $context = $this->surface->context($filter);
+
         return $this->render('@UhifadhiStorage/files/index.html.twig', [
-            ...$this->surface->context($filter),
+            ...$context,
+            ...$this->paged($request, $context['files']),
             'widgets' => $this->widgets->resolve($catalog, $this->widgetUser()),
             'libraryUrl' => $this->router->generate('storage_files_widgets'),
             'settingsUrl' => $this->router->generate('storage_files_settings'),
@@ -141,15 +148,18 @@ final class FilesController
      */
     #[Route('/files/widgets', name: self::WIDGETS, methods: ['GET'])]
     #[IsGranted(StorageConcerns::FILES_READ)]
-    public function widgets(): Response
+    public function widgets(Request $request): Response
     {
         $this->denyAnonymous();
 
         $catalog = new FilesWidgets()->catalog();
         $person = $this->widgetUser();
 
+        $context = $this->surface->context(new FileFilter());
+
         return $this->render('@UhifadhiStorage/files/widgets.html.twig', [
-            ...$this->surface->context(new FileFilter()),
+            ...$context,
+            ...$this->paged($request, $context['files']),
             'catalog' => $catalog,
             'builtins' => $catalog->builtins(),
             'customPresets' => $this->widgets->customPresets($catalog, $person),
@@ -215,6 +225,27 @@ final class FilesController
     public function resetWidgets(Request $request): Response
     {
         return $this->widgetEndpoint->reset($request, new FilesWidgets()->catalog());
+    }
+
+    /**
+     * THE PAGE OF THE RESULT SET the browse widget draws in both shapes, and
+     * the register foot under it. `?page` and `?per` are untrusted: the
+     * Shell's pager falls back to the first page and twenty files rather than
+     * failing.
+     *
+     * @param list<FileEntry> $files every file the filter left
+     *
+     * @return array{rows: list<FileEntry>, table: TablePage, links: array{sizes: array{20: string, 50: string, 100: string, all: string}, previous: ?string, next: ?string}}
+     */
+    private function paged(Request $request, array $files): array
+    {
+        $table = $this->pages->read($request, \count($files));
+
+        return [
+            'rows' => $table->slice($files),
+            'table' => $table,
+            'links' => $this->pages->links($request, $table),
+        ];
     }
 
     /**

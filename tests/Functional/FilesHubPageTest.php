@@ -150,7 +150,7 @@ final class FilesHubPageTest extends FilesTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount($expected, $crawler->filter('[data-f-shapewrap] .f-grid .f-tile'));
-        self::assertStringContainsString((string) $expected, $crawler->filter('[data-f-count]')->text());
+        self::assertStringStartsWith($expected.' file', trim($crawler->filter('[data-w="browse"] > .rdf-foot > span')->first()->text()), 'the foot counts what the chips left');
     }
 
     /**

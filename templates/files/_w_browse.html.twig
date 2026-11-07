@@ -4,9 +4,10 @@
    the widget library.
 
    One filter row, one search, one shape toggle and ONE result set — the grid and
-   the list are the same files in two shapes, never two queries. Every chip is a
-   query parameter and nothing more:
-     → GET /files?module=&area=&kind=&day=&backend=&thumb=&q=&view=
+   the list are the same page of the same files in two shapes, never two
+   queries — and the Shell's register foot under both. Every chip is a query
+   parameter and nothing more:
+     → GET /files?module=&area=&kind=&day=&backend=&thumb=&q=&view=&page=&per=
 
    THE ROW ITSELF IS `_filters.html.twig`, shared with every other widget that
    draws filters, so this surface cannot grow two filter bars that disagree.
@@ -23,9 +24,14 @@
     <span class="tab">Every file, across every module<span class="src">&middot; a picture is a thumbnail, never the original</span></span>
     {{ include('@UhifadhiStorage/files/_filters.html.twig') }}
     <div data-f-shapewrap{{ files is empty ? ' hidden' : '' }}>
-        <div class="f-grid" data-f-grid{{ filter.view == 'grid' ? '' : ' hidden' }}>{%- for file in files -%}{{ ui.tile(file) }}{%- endfor -%}</div>
-        <div data-f-listwrap{{ filter.view == 'list' ? '' : ' hidden' }}><table class="f-list" data-f-list>{{ ui.listhead() }}<tbody>{%- for file in files -%}{{ ui.row(file, places) }}{%- endfor -%}</tbody></table></div>
+        <div class="f-grid" data-f-grid{{ filter.view == 'grid' ? '' : ' hidden' }}>{%- for file in rows -%}{{ ui.tile(file) }}{%- endfor -%}</div>
+        <div data-f-listwrap{{ filter.view == 'list' ? '' : ' hidden' }}><table class="f-list" data-f-list>{{ ui.listhead() }}<tbody>{%- for file in rows -%}{{ ui.row(file, places) }}{%- endfor -%}</tbody></table></div>
     </div>
+    {{ include('@Shell/_foot.html.twig', {
+        count: table.total, noun: 'files', one: 'file',
+        perPage: table.size, page: table.page, pages: table.pages, links: links,
+        hidden: files is empty,
+    }, with_context: false) }}
     {{ ui.empty(files is empty) }}
     {# A way of looking across every module's files at once, not a shelf you put
        things on — which is also why there is no upload button: a file arrives by
