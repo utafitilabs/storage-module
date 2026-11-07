@@ -20,12 +20,13 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
+use Uhifadhi\Bundle\ShellBundle\Model\TablePage;
+use Uhifadhi\Bundle\ShellBundle\Service\TablePageService;
 use Uhifadhi\Storage\Access\StorageConcerns;
 use Uhifadhi\Storage\Service\FilesSectionOverview;
 use Uhifadhi\Storage\Service\SourcesBoard;
 use Uhifadhi\Storage\Service\StorageBoard;
 use Uhifadhi\Storage\Service\StorageSettings;
-use Uhifadhi\Storage\Service\TablePageService;
 use Uhifadhi\Storage\Shell\FilesSectionTabs;
 
 /**
@@ -91,8 +92,8 @@ final readonly class FilesSectionController
 
         return $this->render('@UhifadhiStorage/files/sources.html.twig', [
             'all' => $this->sources->rows(),
-            'table' => $this->pages->page($this->sources->listed($state, $q), self::query($request, 'size'), self::query($request, 'page')),
-            'filter' => array_filter(['state' => $state, 'q' => $q, 'size' => self::query($request, 'size')]),
+            ...$this->paged($request, $this->sources->listed($state, $q)),
+            'filter' => array_filter(['state' => $state, 'q' => $q, TablePageService::PER => self::query($request, TablePageService::PER)]),
             'told' => $this->sources->told(),
         ]);
     }
@@ -109,13 +110,33 @@ final readonly class FilesSectionController
         return $this->render('@UhifadhiStorage/files/storage.html.twig', [
             'all' => $this->storage->rows(),
             'roles' => $this->storage->roles(),
-            'table' => $this->pages->page($this->storage->listed($role, $q), self::query($request, 'size'), self::query($request, 'page')),
-            'filter' => array_filter(['role' => $role, 'q' => $q, 'size' => self::query($request, 'size')]),
+            ...$this->paged($request, $this->storage->listed($role, $q)),
+            'filter' => array_filter(['role' => $role, 'q' => $q, TablePageService::PER => self::query($request, TablePageService::PER)]),
             'warningPercent' => $this->storage->warningPercent(),
             'nearQuota' => $this->storage->isNearQuota(),
             'maxBytes' => $this->settings->maxBytes(),
             'thumbnailLongEdge' => $this->settings->thumbnailLongEdge(),
         ]);
+    }
+
+    /**
+     * This page of a table held in full, and the Shell foot's links.
+     *
+     * @template T
+     *
+     * @param list<T> $rows
+     *
+     * @return array{rows: list<T>, table: TablePage, links: array{sizes: array{20: string, 50: string, 100: string, all: string}, previous: ?string, next: ?string}}
+     */
+    private function paged(Request $request, array $rows): array
+    {
+        $table = $this->pages->read($request, \count($rows));
+
+        return [
+            'rows' => $table->slice($rows),
+            'table' => $table,
+            'links' => $this->pages->links($request, $table),
+        ];
     }
 
     /** One query value as typed, or null where it is absent or blank. */

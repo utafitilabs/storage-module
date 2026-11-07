@@ -93,11 +93,44 @@ final class FilesSectionTablesTest extends FilesTestCase
         self::assertCount(1, $crawler->filter('.lfilt input[type=hidden][name=state][value=live]'));
     }
 
-    public function testThePageSizeIsChosenInTheFoot(): void
+    #[DataProvider('listTabs')]
+    public function testTheFootIsTheShellFootPagedByPageAndPer(string $path): void
     {
-        $crawler = $this->open('/files/sources?size=all');
+        $crawler = $this->open($path.'?q=a');
 
-        self::assertStringContainsString('All per page', $crawler->filter('.rdf-foot')->text());
+        $foot = $crawler->filter('.rdf-foot');
+        $sizes = $foot->filter('.rdf-size .i-ddmenu a.i-ddopt');
+        self::assertSame(['20', '50', '100', 'all'], $sizes->each(static function (Crawler $a): string {
+            parse_str((string) parse_url((string) $a->attr('href'), \PHP_URL_QUERY), $query);
+
+            return \is_string($query['per'] ?? null) ? $query['per'] : '';
+        }), $path.': a size is the Shell\'s per key');
+        foreach ($sizes->each(static fn (Crawler $a): string => (string) $a->attr('href')) as $href) {
+            self::assertStringStartsWith($path.'?', $href);
+            self::assertStringContainsString('q=a', $href, $path.': a new size keeps the search');
+            self::assertStringNotContainsString('size=', $href, $path.': no second word for the size');
+        }
+        self::assertSame('20', trim($foot->filter('.rdf-size a[aria-current="true"]')->text()), $path.': the Shell foot marks the size in use');
+    }
+
+    #[DataProvider('listTabs')]
+    public function testAllPutsEveryRowOnOnePage(string $path): void
+    {
+        $crawler = $this->open($path.'?per=all');
+
+        $foot = $crawler->filter('.rdf-foot');
+        self::assertStringContainsString('all on one page', $foot->text());
+        self::assertSame('All', trim($foot->filter('.rdf-size a[aria-current="true"]')->text()));
+        self::assertCount(1, $crawler->filter('.lfilt input[type=hidden][name=per][value=all]'), $path.': a search keeps the size');
+    }
+
+    #[DataProvider('listTabs')]
+    public function testThePageSizeIsReadFromPerAlone(string $path): void
+    {
+        $crawler = $this->open($path.'?size=all');
+
+        self::assertStringContainsString('20 per page', $crawler->filter('.rdf-foot')->text());
+        self::assertCount(0, $crawler->filter('.lfilt input[name=size]'));
     }
 
     public function testTheSourcesCardsSayWhatAModuleTellsTheHubInWords(): void

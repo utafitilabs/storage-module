@@ -555,7 +555,7 @@ final class UhifadhiStorageBundle extends AbstractBundle
                     service('storage.sources_board'),
                     service('storage.storage_board'),
                     service('storage.settings'),
-                    service('storage.table_pages'),
+                    service('shell.table_page'),
                     service('security.token_storage'),
                 ])
                 ->public();

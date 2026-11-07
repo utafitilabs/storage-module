@@ -116,8 +116,8 @@ Moving it to Observatory beside Performance is one constant
 
 | Screen | Route | Who |
 |---|---|---|
-| The hub, Overview, Sources | `GET /files`, `/files/overview`, `/files/sources?state=&q=&size=&page=` | `files.read` |
-| Storage | `GET /files/storage?role=&q=&size=&page=` | `files.read` and `storage.read` |
+| The hub, Overview, Sources | `GET /files`, `/files/overview`, `/files/sources?state=&q=&per=&page=` | `files.read` |
+| Storage | `GET /files/storage?role=&q=&per=&page=` | `files.read` and `storage.read` |
 | Widget library | `GET /files/widgets` (+ 8 POSTs) | `files.read` |
 | A file's own page | `GET /files/f/{key}` | `files.read`, or whoever may see the record it belongs to |
 | Remove a file | `POST /files/f/{key}/remove` | whoever the owning record says |

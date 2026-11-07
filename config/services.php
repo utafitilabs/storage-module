@@ -34,7 +34,6 @@ use Uhifadhi\Storage\Service\StorageHoldings;
 use Uhifadhi\Storage\Service\StoragePlaces;
 use Uhifadhi\Storage\Service\StorageSettings;
 use Uhifadhi\Storage\Service\StorageTargetService;
-use Uhifadhi\Storage\Service\TablePageService;
 use Uhifadhi\Storage\Service\TargetBoard;
 use Uhifadhi\Storage\Thumbnail\GdThumbnailer;
 use Uhifadhi\Storage\Thumbnail\ImagickThumbnailer;
@@ -258,9 +257,6 @@ return static function (ContainerConfigurator $container): void {
             service('storage.holdings'),
         ]);
     $services->alias(StorageBoard::class, 'storage.storage_board');
-
-    /* THE HOUSE FOOT'S PAGES for the section's tables. */
-    $services->set('storage.table_pages', TablePageService::class);
 
     /*
      * THE SECTION'S FIRST TAB, which reads every one of the above and writes

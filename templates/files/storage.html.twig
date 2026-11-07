@@ -41,7 +41,7 @@
         <table class="tbl">
             <thead><tr><th>Target</th><th class="num">Files</th><th class="num">Used</th><th class="num">Bought</th><th>Filled</th><th class="num"></th></tr></thead>
             <tbody>
-            {% for row in table.rows %}
+            {% for row in rows %}
                 <tr>
                     <td><b>{{ row.place.label }}</b> <span class="chip{{ row.place.current ? ' ok' }}">{{ row.place.current ? 'default' : row.place.kind }}</span><div class="mono d" style="font-size:10.5px;margin-top:4px">{{ row.place.what }}{% if row.place.where %} &middot; {{ row.place.where }}{% endif %}</div></td>
                     <td class="num">{{ row.files|number_format }}</td>
@@ -57,7 +57,10 @@
             {% endfor %}
             </tbody>
         </table>
-        {{ tbl.foot(here, filter, table, 'storage', 'storages') }}
+        {{ include('@Shell/_foot.html.twig', {
+            count: table.total, noun: 'storages', one: 'storage',
+            perPage: table.size, page: table.page, pages: table.pages, links: links,
+        }, with_context: false) }}
         <div class="sxfoot">
             <span>Switching the target asks whether to move what is already kept &middot; the answer decides</span>
             <span class="sp"></span>

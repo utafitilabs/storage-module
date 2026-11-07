@@ -35,7 +35,7 @@
         <table class="tbl">
             <thead><tr><th>Module</th><th>What it calls a file</th><th class="num">Files</th><th class="num">Size</th><th>State</th><th></th></tr></thead>
             <tbody>
-            {% for row in table.rows %}
+            {% for row in rows %}
                 <tr>
                     {# THE SLUG, NOT THE COMPOSER PACKAGE. What the hub knows
                        about a module is the name it registered under; nothing
@@ -63,7 +63,10 @@
             </tr>
             </tbody>
         </table>
-        {{ tbl.foot(here, filter, table, 'module', 'modules') }}
+        {{ include('@Shell/_foot.html.twig', {
+            count: table.total, noun: 'modules', one: 'module',
+            perPage: table.size, page: table.page, pages: table.pages, links: links,
+        }, with_context: false) }}
         <div class="sxfoot">
             <span>Removing a module removes its source &middot; its bytes stay where they are</span>
             <span class="sp"></span>

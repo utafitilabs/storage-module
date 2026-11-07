@@ -1,12 +1,12 @@
-{# THE HOUSE BAR AND FOOT FOR THE SECTION'S TABLES — the shell's `.lfilt`
-   above a `table.tbl` and its `.rdf-foot` under it, in the vocabulary the
-   shell ships and with none of its own.
+{# THE HOUSE BAR FOR THE SECTION'S TABLES — the shell's `.lfilt` above a
+   `table.tbl`, in the vocabulary the shell ships and with none of its own.
+   The foot under the table is `@Shell/_foot.html.twig`.
 
    EVERY CHOICE IS A LINK OR A GET. A chip's option is the page's query with
-   one key replaced, the search is the bar itself as a form carrying the
-   other choices as hidden fields, and the foot's sizes and arrows are links:
-   a narrowed table is a URL, and it filters on a page whose JavaScript never
-   arrived. A new choice of filter or size starts again at page 1. #}
+   one key replaced, and the search is the bar itself as a form carrying the
+   other choices as hidden fields: a narrowed table is a URL, and it filters
+   on a page whose JavaScript never arrived. A new choice of filter starts
+   again at page 1. #}
 
 {# options: list of {label, count, query, on} #}
 {% macro chip(route, head, aria, options) %}
@@ -32,20 +32,4 @@
         {{ chips|raw }}
         <div class="lsearch">{{ ux_icon('shell:search', {width: 14, height: 14, 'aria-hidden': 'true'}) }}<input class="fld" type="search" name="q" value="{{ filter.q|default('') }}" placeholder="{{ placeholder }}" aria-label="{{ placeholder }}" autocomplete="off"></div>
     </form>
-{% endmacro %}
-
-{# The foot: the count and the page size left, the page right; an arrow only
-   where there is a page to go to. #}
-{% macro foot(route, filter, table, noun, nouns) %}
-    <div class="rdf-foot">
-        <span>{{ table.total|number_format }} {{ table.total == 1 ? noun : nouns }} &middot; <details class="i-dd rdf-size"><summary><span class="pg">{{ table.size == 'all' ? 'All' : table.size }}</span> per page<span class="i-ddcaret">&#9662;</span></summary><div class="i-ddmenu" aria-label="Rows per page">
-            {%- for size in constant('Uhifadhi\\Storage\\Service\\TablePageService::SIZES') -%}
-                <a class="i-ddopt{{ size == table.size ? ' on' }}" href="{{ path(route, filter|filter((v, k) => k != 'size')|merge({size: size})) }}"><span class="i-ddopt-l">{{ size == 'all' ? 'All' : size }}</span></a>
-            {%- endfor -%}
-        </div></details></span>
-        <span class="rdf-page">page <span class="pg">{{ table.page }}</span> of {{ table.pages }}
-            {%- if table.hasPrevious() %}<a href="{{ path(route, filter|merge({page: table.page - 1})) }}" aria-label="Previous page">&lsaquo;</a>{% endif -%}
-            {%- if table.hasNext() %}<a href="{{ path(route, filter|merge({page: table.page + 1})) }}" aria-label="Next page">&rsaquo;</a>{% endif -%}
-        </span>
-    </div>
 {% endmacro %}
