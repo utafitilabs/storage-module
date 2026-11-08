@@ -41,7 +41,7 @@
         "symfony/security-csrf": "^7.3 || ^8.0",
         "symfony/uid": "^7.3 || ^8.0",
         "twig/twig": "^3.12",
-        "uhifadhi/uhifadhi": "^0.2.4"
+        "uhifadhi/uhifadhi": "^0.2.4 || ^0.3"
     },
     "autoload": {
         "psr-4": {
